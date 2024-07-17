@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -38,17 +39,21 @@ class UserController extends AbstractController
     public function create(
         #[MapRequestPayload(
             serializationContext: ['groups' => ['user.create']]
-        )] User $user
+        )] User $user,
+        UserPasswordHasherInterface $hasher
     ): JsonResponse
     {
+        $user->setPassword($hasher->hashPassword($user, $user->getPassword()));
         $this->em->persist($user);
         $this->em->flush();
         return $this->json($user, JsonResponse::HTTP_CREATED, [], ['groups' => 'user.read']);
     }
 
     #[Route('/{id}', name: 'user.update', methods: ['PUT'], requirements: ['id' => '\d+'])]
-    public function update(Request $request, User $user, SerializerInterface $serializer): JsonResponse
+    public function update(Request $request, User $user, SerializerInterface $serializer, UserPasswordHasherInterface $hasher): JsonResponse
     {   
+        $data = json_decode($request->getContent(), true);
+
         $serializer->deserialize ($request->getContent(), User::class, 'json', [
             AbstractNormalizer::OBJECT_TO_POPULATE => $user,
             'groups' => ['user.update'] 
@@ -56,6 +61,10 @@ class UserController extends AbstractController
 
         $error = $this->validationService->validate($user);
         if ($error) return $error;
+
+        if (isset($data['password']) && $data['password'] !== null) {
+            $user->setPassword($hasher->hashPassword($user, $user->getPassword()));
+        }
         
         $this->em->persist($user);
         $this->em->flush();
