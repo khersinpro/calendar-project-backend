@@ -9,11 +9,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class JwtService
 {
-    public function __construct(
-        private string $privateKeyPath, 
-        private string $publicKeyPath, 
-        private string $passphrase
-    ){ }
+    public function __construct(private string $privateKeyPath, private string $publicKeyPath, private string $passphrase){ }
 
     public function generateToken(array $payload): string
     {

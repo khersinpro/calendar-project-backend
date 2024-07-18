@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -81,4 +82,9 @@ class UserController extends AbstractController
         return $this->json('', JsonResponse::HTTP_NO_CONTENT);
     }
 
+    #[Route('/me', name: 'user.me', methods: ['GET'])]
+    public function me(#[CurrentUser] User $user): JsonResponse
+    {
+        return $this->json($user, JsonResponse::HTTP_OK, [], ['groups' => 'user.read']);
+    }
 }

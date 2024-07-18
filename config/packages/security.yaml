@@ -18,6 +18,13 @@ security:
             stateless: true
             json_login:
                 check_path: /api/auth/login
+            custom_authenticator: App\Security\ApiJwtAuthenticator
+
+        api:
+            pattern: ^/api
+            stateless: true
+            custom_authenticator: App\Security\ApiJwtAuthenticator
+
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
 
@@ -27,8 +34,7 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/api/user, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
