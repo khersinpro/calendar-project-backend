@@ -2,10 +2,12 @@
 
 namespace App\Service;
 
+use Exception;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use stdClass;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class JwtService
 {
@@ -19,7 +21,11 @@ class JwtService
 
     public function decodeToken(string $token): ?stdClass
     {
-        $publicKey = openssl_pkey_get_public(file_get_contents($this->publicKeyPath));
-        return JWT::decode($token, new Key($publicKey, 'RS256'));
+        try {
+            $publicKey = openssl_pkey_get_public(file_get_contents($this->publicKeyPath));
+            return JWT::decode($token, new Key($publicKey, 'RS256'));
+        } catch (Exception $e) {
+            return null;
+        }
     }
 }

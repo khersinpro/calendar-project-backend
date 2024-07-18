@@ -2,7 +2,9 @@
 
 namespace App\Security;
 
+use App\Service\AuthCookieService;
 use App\Service\JwtService;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,17 +21,13 @@ class ApiJwtAuthenticator extends AbstractAuthenticator
 
     public function supports(Request $request): ?bool
     {
-        return $request->headers->get('Authorization');
+        return $request->cookies->has('x-auth-token') && $request->cookies->get('x-auth-token');
     }
 
     public function authenticate(Request $request): Passport
     {
-        $tokenHeader = $request->headers->get('Authorization');
-
-        if (!$tokenHeader) throw new AuthenticationException('No token provided');
+        $token = $request->cookies->get('x-auth-token');
         
-
-        $token = str_replace('Bearer ', '', $tokenHeader);
         $decodedToken = $this->jwtService->decodeToken($token);
 
         if (!$decodedToken) throw new AuthenticationException('Invalid token');
@@ -44,7 +42,13 @@ class ApiJwtAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        return new JsonResponse($exception->getMessage(), JsonResponse::HTTP_UNAUTHORIZED);
+        $response = new JsonResponse($exception->getMessage(), JsonResponse::HTTP_UNAUTHORIZED);
+
+        if ($request->cookies->has('x-auth-token')) {
+            $response->headers->setCookie(AuthCookieService::deleteAuthCookie());
+        }
+
+        return $response;
     }
 
     //    public function start(Request $request, AuthenticationException $authException = null): Response
