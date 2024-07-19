@@ -15,9 +15,7 @@ security:
         login:
             pattern: ^/api/auth/login
             stateless: true
-            json_login:
-                check_path: /api/auth/login
-            custom_authenticator: App\Security\ApiJwtAuthenticator
+            custom_authenticator: App\Security\BaseAuthenticator
         oauth_google:
             pattern: ^/api/auth/google
             stateless: true

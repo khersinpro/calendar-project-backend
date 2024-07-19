@@ -58,9 +58,7 @@ class AuthController extends AbstractController
             $accessToken = $client->getAccessToken();
             /** @var \League\OAuth2\Client\Provider\GoogleUser $googleUser */
             $googleUser = $client->fetchUserFromToken($accessToken);
-            dd($googleUser);
             $user = $userRepository->findOneBy(['email' => $googleUser->getEmail()]);
-            dd($user);
 
             if (!$user) {
                 $user = $userOauthService->createUserFromGoogle($accessToken, $googleUser);
