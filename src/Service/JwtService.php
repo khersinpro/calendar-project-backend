@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\User;
 use Exception;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -13,10 +14,18 @@ class JwtService
 {
     public function __construct(private string $privateKeyPath, private string $publicKeyPath, private string $passphrase){ }
 
-    public function generateToken(array $payload): string
+    public function generateToken(User $user): string
     {
+        if (!$user instanceof User) {
+            throw new \Exception('Invalid user object');
+        }
+
         $privateKey = openssl_pkey_get_private(file_get_contents($this->privateKeyPath), $this->passphrase);
-        return JWT::encode($payload, $privateKey, 'RS256');
+        return JWT::encode([
+            'id' => $user->getId(),
+            'email' => $user->getEmail(),
+            'roles' => $user->getRoles()
+        ], $privateKey, 'RS256');
     }
 
     public function decodeToken(string $token): ?stdClass

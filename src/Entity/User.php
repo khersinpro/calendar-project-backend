@@ -3,6 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use App\Service\EmailNormalizerService;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -24,7 +27,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180)]
     #[Assert\NotBlank]
     #[Assert\Email]
-    #[Groups(['user.read', 'user.create'])]
+    #[Groups(['user.read', 'user.create', 'user.update'])]
     private ?string $email = null;
     
     /**
@@ -65,8 +68,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user.read', 'user.create', 'user.update'])]
     private ?string $lastname = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $google_id = null;
+    /**
+     * @var Collection<int, UserProvider>
+     */
+    #[ORM\OneToMany(targetEntity: UserProvider::class, mappedBy: 'user_id', orphanRemoval: true)]
+    private Collection $userProviders;
+
+    public function __construct()
+    {
+        $this->userProviders = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -80,8 +91,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setEmail(string $email): static
     {
-        $this->email = $email;
-
+        $this->email = EmailNormalizerService::normalizeEmail($email);
         return $this;
     }
 
@@ -167,14 +177,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getGoogleId(): ?string
+
+    /**
+     * @return Collection<int, UserProvider>
+     */
+    public function getUserProviders(): Collection
     {
-        return $this->google_id;
+        return $this->userProviders;
     }
 
-    public function setGoogleId(?string $google_id): static
+    public function addUserProvider(UserProvider $userProvider): static
     {
-        $this->google_id = $google_id;
+        if (!$this->userProviders->contains($userProvider)) {
+            $this->userProviders->add($userProvider);
+            $userProvider->setUserId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserProvider(UserProvider $userProvider): static
+    {
+        if ($this->userProviders->removeElement($userProvider)) {
+            // set the owning side to null (unless already changed)
+            if ($userProvider->getUserId() === $this) {
+                $userProvider->setUserId(null);
+            }
+        }
 
         return $this;
     }

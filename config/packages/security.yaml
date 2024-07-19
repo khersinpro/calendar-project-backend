@@ -20,7 +20,7 @@ security:
             custom_authenticator: App\Security\ApiJwtAuthenticator
         oauth_google:
             pattern: ^/api/auth/google
-            stateless: false
+            stateless: true
         api:
             pattern: ^/api
             stateless: true

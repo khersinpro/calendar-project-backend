@@ -3,9 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\UserProvider;
+use App\Enum\UserProviderEnum;
+use App\Repository\UserProviderRepository;
 use App\Repository\UserRepository;
 use App\Service\AuthCookieService;
 use App\Service\JwtService;
+use App\Service\UserOauthService;
+use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
@@ -17,7 +22,10 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 #[Route('/api/auth')]
 class AuthController extends AbstractController
 {
-    public function __construct(private JwtService $jwtService, private AuthCookieService  $authCookieService) { }
+    public function __construct(
+        private JwtService $jwtService, 
+        private AuthCookieService  $authCookieService
+    ) { }
 
     #[Route('/login', name: 'app_login', methods: ['POST'])]
     public function login(#[CurrentUser] ?User $user): JsonResponse
@@ -26,16 +34,10 @@ class AuthController extends AbstractController
             return $this->json('Bad credentials', JsonResponse::HTTP_UNAUTHORIZED);
         }
 
-        $token = $this->jwtService->generateToken([
-            'id' => $user->getId(),
-            'email' => $user->getEmail(),
-            'roles' => $user->getRoles()
-        ]);
+        $token = $this->jwtService->generateToken($user);
 
         $response = $this->json(['user' => $user], JsonResponse::HTTP_OK, [], ['groups' => 'user.read']);
-        
         $response->headers->setCookie($this->authCookieService->createAuthCookie($token));
-
         return $response;
     }
 
@@ -46,32 +48,36 @@ class AuthController extends AbstractController
     }
 
     #[Route('/google/callback', name: 'app_google_login_callback', methods: ['GET'])]
-    public function googleLoginCallback(ClientRegistry $clientRegistry, UserRepository $userRepository, EntityManagerInterface $em)
+    public function googleLoginCallback(ClientRegistry $clientRegistry, UserRepository $userRepository, EntityManagerInterface $em, UserProviderRepository $userProviderRepository, UserOauthService $userOauthService)
     {
         /** @var \KnpU\OAuth2ClientBundle\Client\Provider\GoogleClient $client */
         $client = $clientRegistry->getClient('google');
 
         try {
-            /** @var \League\OAuth2\Client\Provider\GoogleUser $googleUser */
-            $googleUser = $client->fetchUser();
 
+            $accessToken = $client->getAccessToken();
+            /** @var \League\OAuth2\Client\Provider\GoogleUser $googleUser */
+            $googleUser = $client->fetchUserFromToken($accessToken);
+            dd($googleUser);
             $user = $userRepository->findOneBy(['email' => $googleUser->getEmail()]);
+            dd($user);
 
             if (!$user) {
-                $user = new User();
-                $user->setEmail($googleUser->getEmail());
-                $user->setFirstname($googleUser->getFirstname());
-                $user->setLastname($googleUser->getLastname());
-                $user->setGoogleId($googleUser->getId());
-                $em->persist($user);
-                $em->flush();
+                $user = $userOauthService->createUserFromGoogle($accessToken, $googleUser);
+            } else {
+                $existingGoogleUserProvider = $userProviderRepository->findOneBy([
+                    'user_id' => $user->getId(), 
+                    'type' => UserProviderEnum::GOOGLE
+                ]);
+
+                if (!$existingGoogleUserProvider) {
+                    $userOauthService->createUserGoogleProvider($user, $accessToken, $googleUser);
+                } else {
+                    $userOauthService->updateUserGoogleProvider($accessToken, $googleUser, $existingGoogleUserProvider);
+                }
             }
-            
-            $token = $this->jwtService->generateToken([
-                'id' => $user->getId(),
-                'email' => $user->getEmail(),
-                'roles' => $user->getRoles()
-            ]);
+
+            $token = $this->jwtService->generateToken($user);
 
             $response = $this->json(['user' => $user], JsonResponse::HTTP_OK, [], ['groups' => 'user.read']);
             $response->headers->setCookie($this->authCookieService->createAuthCookie($token));
