@@ -16,6 +16,7 @@ security:
             pattern: ^/api/auth/login
             stateless: true
             custom_authenticator: App\Security\BaseAuthenticator
+
         custom_logout:
             pattern: ^/api/auth/logout
             stateless: true
