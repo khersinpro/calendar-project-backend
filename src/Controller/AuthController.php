@@ -3,18 +3,18 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Entity\UserProvider;
 use App\Enum\UserProviderEnum;
 use App\Repository\UserProviderRepository;
 use App\Repository\UserRepository;
 use App\Service\AuthCookieService;
+use App\Service\CsrfProtectionService;
 use App\Service\JwtService;
 use App\Service\UserOauthService;
-use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
@@ -89,5 +89,17 @@ class AuthController extends AbstractController
         catch (Exception $e) {
             return $this->json($e->getMessage(), JsonResponse::HTTP_UNAUTHORIZED);
         }
+    }
+
+    #[Route('/csrf', name: 'app_csrf', methods: ['GET'])]
+    public function csrf(CsrfProtectionService $csrfProtectionService, Request $request): JsonResponse
+    {
+        $response = new JsonResponse('', JsonResponse::HTTP_NO_CONTENT);
+
+        if ($uniqueId = $request->attributes->get('unique_id')) {
+            $response->headers->setCookie($csrfProtectionService->createCsrfCookie($uniqueId));
+        }
+
+        return $response;
     }
 }

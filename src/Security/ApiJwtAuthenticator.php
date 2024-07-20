@@ -3,8 +3,8 @@
 namespace App\Security;
 
 use App\Service\AuthCookieService;
+use App\Service\CsrfProtectionService;
 use App\Service\JwtService;
-use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,7 +17,10 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 
 class ApiJwtAuthenticator extends AbstractAuthenticator
 {
-    public function __construct(private JwtService $jwtService) { }
+    public function __construct(
+        private JwtService $jwtService, 
+        private CsrfProtectionService $csrfProtectionService
+    ) { }
 
     public function supports(Request $request): ?bool
     {
@@ -32,7 +35,12 @@ class ApiJwtAuthenticator extends AbstractAuthenticator
 
         if (!$decodedToken) throw new AuthenticationException('Invalid token');
 
-        return new SelfValidatingPassport(new UserBadge($decodedToken->email));
+        $this->csrfProtectionService->validateToken($request, $decodedToken->unique_id);
+
+        $request->attributes->set('unique_id', $decodedToken->unique_id);
+
+
+        return  new SelfValidatingPassport(new UserBadge($decodedToken->email));
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response

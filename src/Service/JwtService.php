@@ -6,9 +6,8 @@ use App\Entity\User;
 use Exception;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Ramsey\Uuid\Uuid;
 use stdClass;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class JwtService
 {
@@ -24,7 +23,8 @@ class JwtService
         return JWT::encode([
             'id' => $user->getId(),
             'email' => $user->getEmail(),
-            'roles' => $user->getRoles()
+            'roles' => $user->getRoles(),
+            'unique_id' => Uuid::uuid4()->toString()
         ], $privateKey, 'RS256');
     }
 

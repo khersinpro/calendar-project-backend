@@ -7,6 +7,7 @@ parameters:
     jwt_private_key_path: '%env(resolve:JWT_PRIVATE_KEY_PATH)%'
     jwt_public_key_path: '%env(resolve:JWT_PUBLIC_KEY_PATH)%'
     jwt_passphrase: '%env(JWT_PASSPHRASE)%'
+    csrf_secret: '%env(CSRF_SECRET)%'
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -31,5 +32,9 @@ services:
     App\Service\ValidationService:
         arguments:
             $validator: '@validator'
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+
+    App\Service\CsrfProtectionService:
+        arguments:
+            $secret: '%csrf_secret%'
+            $environment: '%kernel.environment%'
+
