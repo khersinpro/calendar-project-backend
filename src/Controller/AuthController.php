@@ -10,7 +10,6 @@ use App\Repository\UserRepository;
 use App\Service\AuthCookieService;
 use App\Service\JwtService;
 use App\Service\UserOauthService;
-use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
@@ -48,16 +47,22 @@ class AuthController extends AbstractController
     }
 
     #[Route('/google/callback', name: 'app_google_login_callback', methods: ['GET'])]
-    public function googleLoginCallback(ClientRegistry $clientRegistry, UserRepository $userRepository, EntityManagerInterface $em, UserProviderRepository $userProviderRepository, UserOauthService $userOauthService)
+    public function googleLoginCallback(
+        ClientRegistry $clientRegistry, 
+        UserRepository $userRepository, 
+        UserProviderRepository $userProviderRepository, 
+        UserOauthService $userOauthService
+    )
     {
         /** @var \KnpU\OAuth2ClientBundle\Client\Provider\GoogleClient $client */
         $client = $clientRegistry->getClient('google');
 
         try {
-
             $accessToken = $client->getAccessToken();
+            
             /** @var \League\OAuth2\Client\Provider\GoogleUser $googleUser */
             $googleUser = $client->fetchUserFromToken($accessToken);
+
             $user = $userRepository->findOneBy(['email' => $googleUser->getEmail()]);
 
             if (!$user) {
