@@ -67,7 +67,7 @@ class UserOauthService
         $googleUserProvider->setRefreshToken($accessToken->getRefreshToken());
         $googleUserProvider->setUniqueId($googleUser->getId());
         $googleUserProvider->setTokenExpire($tokenExpire);
-        $googleUserProvider->setUserId($user);
+        $googleUserProvider->setUser($user);
 
         $this->validationService->validate($googleUserProvider);
         $this->em->persist($googleUserProvider);

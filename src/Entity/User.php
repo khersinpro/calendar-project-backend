@@ -65,18 +65,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         minMessage: 'The firstname must be at least 2 characters',
         maxMessage: 'The firstname cannot be longer than 35 characters'
     )]
+
     #[Groups(['user.read', 'user.create', 'user.update'])]
     private ?string $lastname = null;
 
     /**
      * @var Collection<int, UserProvider>
      */
-    #[ORM\OneToMany(targetEntity: UserProvider::class, mappedBy: 'user_id', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: UserProvider::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $userProviders;
+
+    /**
+     * @var Collection<int, OrganizationUser>
+     */
+    #[ORM\OneToMany(targetEntity: OrganizationUser::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $organization_users;
 
     public function __construct()
     {
         $this->userProviders = new ArrayCollection();
+        $this->organization_users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -190,7 +198,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->userProviders->contains($userProvider)) {
             $this->userProviders->add($userProvider);
-            $userProvider->setUserId($this);
+            $userProvider->setUser($this);
         }
 
         return $this;
@@ -200,8 +208,38 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->userProviders->removeElement($userProvider)) {
             // set the owning side to null (unless already changed)
-            if ($userProvider->getUserId() === $this) {
-                $userProvider->setUserId(null);
+            if ($userProvider->getUser() === $this) {
+                $userProvider->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, OrganizationUser>
+     */
+    public function getOrganizationUsers(): Collection
+    {
+        return $this->organization_users;
+    }
+
+    public function addOrganizationUser(OrganizationUser $organizationUser): static
+    {
+        if (!$this->organization_users->contains($organizationUser)) {
+            $this->organization_users->add($organizationUser);
+            $organizationUser->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrganizationUser(OrganizationUser $organizationUser): static
+    {
+        if ($this->organization_users->removeElement($organizationUser)) {
+            // set the owning side to null (unless already changed)
+            if ($organizationUser->getUser() === $this) {
+                $organizationUser->setUser(null);
             }
         }
 
