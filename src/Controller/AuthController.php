@@ -10,11 +10,14 @@ use App\Service\AuthCookieService;
 use App\Service\CsrfProtectionService;
 use App\Service\JwtService;
 use App\Service\UserOauthService;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
@@ -26,7 +29,7 @@ class AuthController extends AbstractController
         private AuthCookieService  $authCookieService
     ) { }
 
-    #[Route('/login', name: 'app_login', methods: ['POST'])]
+    #[Route('/login', name: 'auth.login', methods: ['POST'])]
     public function login(#[CurrentUser] ?User $user): JsonResponse
     {
         if (null === $user) {
@@ -40,13 +43,28 @@ class AuthController extends AbstractController
         return $response;
     }
 
-    #[Route('/google', name: 'app_google_login', methods: ['GET'])]
+    #[Route('/signup', name: 'auth.signup', methods: ['POST'])]
+    public function create(
+        #[MapRequestPayload(
+            serializationContext: ['groups' => ['user.create']]
+        )] User $user,
+        UserPasswordHasherInterface $hasher,
+        EntityManagerInterface $em
+    ): JsonResponse
+    {
+        $user->setPassword($hasher->hashPassword($user, $user->getPassword()));
+        $em->persist($user);
+        $em->flush();
+        return $this->json($user, JsonResponse::HTTP_CREATED, [], ['groups' => 'user.read']);
+    }
+
+    #[Route('/google', name: 'auth.google_login', methods: ['GET'])]
     public function googleLogin(ClientRegistry $clientRegistry)
     {
         return $clientRegistry->getClient('google')->redirect(['email', 'profile'], []);
     }
 
-    #[Route('/google/callback', name: 'app_google_login_callback', methods: ['GET'])]
+    #[Route('/google/callback', name: 'auth.google_login_callback', methods: ['GET'])]
     public function googleLoginCallback(
         ClientRegistry $clientRegistry, 
         UserRepository $userRepository, 
@@ -91,7 +109,7 @@ class AuthController extends AbstractController
         }
     }
 
-    #[Route('/csrf', name: 'app_csrf', methods: ['GET'])]
+    #[Route('/csrf', name: 'auth.csrf', methods: ['GET'])]
     public function csrf(CsrfProtectionService $csrfProtectionService, Request $request): JsonResponse
     {
         $response = new JsonResponse('', JsonResponse::HTTP_NO_CONTENT);

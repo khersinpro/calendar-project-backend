@@ -6,6 +6,7 @@ use App\Enum\UserProviderEnum;
 use App\Repository\UserProviderRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: UserProviderRepository::class)]
 class UserProvider

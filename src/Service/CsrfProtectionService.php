@@ -74,7 +74,16 @@ class CsrfProtectionService
     public function createCsrfCookie(string $uniqueId, string $signature = 'x-csrf-token'): Cookie
     {   
         $token = $this->generateToken($uniqueId);
-        $cookie = new Cookie($signature, $token, time() + self::DEFAULT_EXPIRATION);
+        $cookie = new Cookie(
+            $signature, 
+            $token, 
+            time() + self::DEFAULT_EXPIRATION,
+            '/',
+            null,
+            $this->environment === 'prod',
+            false,
+            false
+        );
 
         return $cookie;
     }   

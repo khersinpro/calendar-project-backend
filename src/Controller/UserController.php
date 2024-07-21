@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\DTO\PaginationDTO;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\ValidationService;
@@ -9,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
@@ -23,9 +25,9 @@ class UserController extends AbstractController
     {}
 
     #[Route(name: 'user.list', methods: ['GET'])]
-    public function list(): JsonResponse
+    public function list(#[MapQueryString] ?PaginationDTO $paginationDTO): JsonResponse
     {
-        $user = $this->repository->findAll();
+        $user = $this->repository->findAllPaginated($paginationDTO?->page, $paginationDTO?->limit);
 
         return $this->json($user, JsonResponse::HTTP_OK, [], ['groups' => 'user.read']);
     }
@@ -34,20 +36,6 @@ class UserController extends AbstractController
     public function show(User $user): JsonResponse
     {
         return $this->json($user, JsonResponse::HTTP_OK, [], ['groups' => 'user.read']);
-    }
-
-    #[Route(name: 'user.create', methods: ['POST'])]
-    public function create(
-        #[MapRequestPayload(
-            serializationContext: ['groups' => ['user.create']]
-        )] User $user,
-        UserPasswordHasherInterface $hasher
-    ): JsonResponse
-    {
-        $user->setPassword($hasher->hashPassword($user, $user->getPassword()));
-        $this->em->persist($user);
-        $this->em->flush();
-        return $this->json($user, JsonResponse::HTTP_CREATED, [], ['groups' => 'user.read']);
     }
 
     #[Route('/{id}', name: 'user.update', methods: ['PUT'], requirements: ['id' => '\d+'])]
