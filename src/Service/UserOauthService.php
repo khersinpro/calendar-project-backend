@@ -18,6 +18,12 @@ class UserOauthService
     {
     }
 
+    /**
+     * Create a user from a google user in oauth flow
+     * @param AccessTokenInterface $accessToken - the access token
+     * @param GoogleUser $googleUser - the google user
+     * @return User - the created user
+     */
     public function createUserFromGoogle(AccessTokenInterface $accessToken, GoogleUser $googleUser)
     {
         $user = new User();
@@ -44,6 +50,13 @@ class UserOauthService
         return $user;
     }
 
+    /**
+     * Create a google provider for a user
+     * @param User $user - the user to create the provider for
+     * @param AccessTokenInterface $accessToken - the access token
+     * @param GoogleUser $googleUser - the google user
+     * @return User
+     */
     public function createUserGoogleProvider(User $user, AccessTokenInterface $accessToken, GoogleUser $googleUser): User
     {
         $tokenExpire = (new \DateTime())->setTimestamp($accessToken->getExpires());
@@ -63,6 +76,13 @@ class UserOauthService
         return $user;
     }
 
+    /**
+     * Update a google provider for a user, this will update the access token and refresh token, and the token expire
+     * @param AccessTokenInterface $accessToken - the access token
+     * @param GoogleUser $googleUser - the google user
+     * @param UserProvider $userProvider - the user provider
+     * @return User
+     */
     public function updateUserGoogleProvider(AccessTokenInterface $accessToken, GoogleUser $googleUser, UserProvider $userProvider)
     {
         if ($userProvider->getType() !== UserProviderEnum::GOOGLE) {

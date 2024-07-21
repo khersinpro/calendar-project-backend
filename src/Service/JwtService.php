@@ -13,6 +13,11 @@ class JwtService
 {
     public function __construct(private string $privateKeyPath, private string $publicKeyPath, private string $passphrase){ }
 
+    /**
+     * Generate a jwt token for a user with a unique id
+     * @param User $user - the user to generate the token for
+     * @return string - the generated token
+     */
     public function generateToken(User $user): string
     {
         if (!$user instanceof User) {
@@ -28,6 +33,11 @@ class JwtService
         ], $privateKey, 'RS256');
     }
 
+    /**
+     * Decode a jwt token
+     * @param string $token - the token to decode
+     * @return stdClass|null - the decoded token
+     */
     public function decodeToken(string $token): ?stdClass
     {
         try {

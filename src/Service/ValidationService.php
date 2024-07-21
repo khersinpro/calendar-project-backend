@@ -15,6 +15,12 @@ class ValidationService
         $this->validator = $validator;
     }
 
+    /**
+     * Validate an entity and return a json response with the errors if any or null if no errors
+     * @param object $entity - the entity to validate
+     * @param array $groups - the serializer groups to validate
+     * @return JsonResponse|null - the json response with the errors or null if no errors
+     */
     public function validate($entity, array $groups = null): ?JsonResponse
     {
         $errors = $this->validator->validate($entity, null, $groups);

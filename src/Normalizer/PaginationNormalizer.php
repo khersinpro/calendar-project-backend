@@ -15,8 +15,15 @@ class PaginationNormalizer implements NormalizerInterface
         private readonly NormalizerInterface $normalizer
     )
     {
-        
     }
+
+    /**
+     * Normalize a pagination object
+     * @param mixed $object - the object to normalize
+     * @param string|null $format - the format to normalize the object to
+     * @param array $context - the context to normalize the object with
+     * @return array|string|int|float|bool|ArrayObject|null - the normalized object
+     */
     public function normalize(mixed $object, ?string $format = null, array $context = []): array|string|int|float|bool|ArrayObject|null
     {
         if (!($object instanceof PaginationInterface)) {
@@ -32,11 +39,23 @@ class PaginationNormalizer implements NormalizerInterface
         ];
     }
 
+    /**
+     * Check if the normalization is supported
+     * @param mixed $data - the data to check
+     * @param string|null $format - the format to check
+     * @param array $context - the context to check
+     * @return bool - true if the normalization is supported, false otherwise
+     */
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof PaginationInterface;
     }
 
+    /**
+     * The supported types for this normalizer
+     * @param string|null $format - the format to get the supported types for
+     * @return array - the supported types
+     */
     public function getSupportedTypes(?string $format): array
     {
         return [
