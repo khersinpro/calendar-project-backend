@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\OrganizationRoleEnum;
 use App\Repository\OrganizationUserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -33,9 +34,13 @@ class OrganizationUser
     #[ORM\ManyToMany(targetEntity: EventType::class, mappedBy: 'organization_users')]
     private Collection $event_types;
 
+    #[ORM\Column(enumType: OrganizationRoleEnum::class)]
+    private ?OrganizationRoleEnum $organization_role = null;
+
     public function __construct()
     {
         $this->event_types = new ArrayCollection();
+        $this->organization_role = OrganizationRoleEnum::USER;
     }
 
     public function getId(): ?int
@@ -106,6 +111,18 @@ class OrganizationUser
         if ($this->event_types->removeElement($eventType)) {
             $eventType->removeOrganizationUser($this);
         }
+
+        return $this;
+    }
+
+    public function getOrganizationRole(): ?OrganizationRoleEnum
+    {
+        return $this->organization_role;
+    }
+
+    public function setOrganizationRole(OrganizationRoleEnum $organization_role): static
+    {
+        $this->organization_role = $organization_role;
 
         return $this;
     }
