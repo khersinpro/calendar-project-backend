@@ -4,7 +4,7 @@ knpu_oauth2_client:
             type: google
             client_id: '%env(GOOGLE_CLIENT_ID)%'
             client_secret: '%env(GOOGLE_CLIENT_SECRET)%'
-            redirect_route: app_google_login_callback
+            redirect_route: auth.google_login_callback
             redirect_params: {}
             access_type: offline
             use_state: false

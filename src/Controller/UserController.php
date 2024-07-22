@@ -11,7 +11,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
-use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
@@ -27,7 +26,7 @@ class UserController extends AbstractController
     #[Route(name: 'user.list', methods: ['GET'])]
     public function list(#[MapQueryString] ?PaginationDTO $paginationDTO): JsonResponse
     {
-        $user = $this->repository->findAllPaginated($paginationDTO?->page, $paginationDTO?->limit);
+        $user = $this->repository->findAllPaginated($paginationDTO?->page ?? 1, $paginationDTO?->limit ?? 10);
 
         return $this->json($user, JsonResponse::HTTP_OK, [], ['groups' => 'user.read']);
     }

@@ -30,14 +30,13 @@ class UserOauthService
         $user->setEmail($googleUser->getEmail());
         $user->setFirstname($googleUser->getFirstname());
         $user->setLastname($googleUser->getLastname());
-        
         $tokenExpire = (new \DateTime())->setTimestamp($accessToken->getExpires());
 
         $userProvider = new UserProvider();
         $userProvider->setType(UserProviderEnum::GOOGLE);
         $userProvider->setAccessToken($accessToken->getToken());
         $userProvider->setRefreshToken($accessToken->getRefreshToken());
-        $userProvider->setTokenExpire($accessToken->getExpires());
+        $userProvider->setTokenExpire($tokenExpire);
         $userProvider->setUniqueId($googleUser->getId());
         $userProvider->setTokenExpire($tokenExpire);
 

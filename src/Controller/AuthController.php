@@ -87,10 +87,10 @@ class AuthController extends AbstractController
                 $user = $userOauthService->createUserFromGoogle($accessToken, $googleUser);
             } else {
                 $existingGoogleUserProvider = $userProviderRepository->findOneBy([
-                    'user_id' => $user->getId(), 
+                    'user' => $user->getId(), 
                     'type' => UserProviderEnum::GOOGLE
                 ]);
-
+                
                 if (!$existingGoogleUserProvider) {
                     $userOauthService->createUserGoogleProvider($user, $accessToken, $googleUser);
                 } else {
