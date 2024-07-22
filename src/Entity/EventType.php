@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\EventTypeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -39,11 +41,18 @@ class EventType
     #[ORM\JoinColumn(nullable: false)]
     private ?Organization $organization = null;
 
+    /**
+     * @var Collection<int, OrganizationUser>
+     */
+    #[ORM\ManyToMany(targetEntity: OrganizationUser::class, inversedBy: 'event_types')]
+    private Collection $organization_users;
+
     public function __construct()
     {
         $this->payment_required = false;
         $this->deposit_required = false;
         $this->address_required = false;
+        $this->organization_users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -143,6 +152,34 @@ class EventType
     public function setOrganization(?Organization $organization): static
     {
         $this->organization = $organization;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, OrganizationUser>
+     */
+    public function getOrganizationUsers(): Collection
+    {
+        return $this->organization_users;
+    }
+
+    public function addOrganizationUser(OrganizationUser $organizationUser): static
+    {
+        if ($organizationUser->getOrganization() !== $this->getOrganization()) {
+            throw new \Exception('The user oganization must be the same as the event organization');
+        }
+        
+        if (!$this->organization_users->contains($organizationUser)) {
+            $this->organization_users->add($organizationUser);
+        }
+
+        return $this;
+    }
+
+    public function removeOrganizationUser(OrganizationUser $organizationUser): static
+    {
+        $this->organization_users->removeElement($organizationUser);
 
         return $this;
     }

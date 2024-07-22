@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\OrganizationUserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: OrganizationUserRepository::class)]
@@ -24,6 +26,17 @@ class OrganizationUser
     #[ORM\OneToOne(inversedBy: 'organization_user', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Planning $planning = null;
+
+    /**
+     * @var Collection<int, EventType>
+     */
+    #[ORM\ManyToMany(targetEntity: EventType::class, mappedBy: 'organization_users')]
+    private Collection $event_types;
+
+    public function __construct()
+    {
+        $this->event_types = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -62,6 +75,37 @@ class OrganizationUser
     public function setPlanning(Planning $planning): static
     {
         $this->planning = $planning;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EventType>
+     */
+    public function getEventTypes(): Collection
+    {
+        return $this->event_types;
+    }
+
+    public function addEventType(EventType $eventType): static
+    {
+        if ($eventType->getOrganization() !== $this->getOrganization()) {
+            throw new \Exception('The user oganization must be the same as the event organization');
+        }
+
+        if (!$this->event_types->contains($eventType)) {
+            $this->event_types->add($eventType);
+            $eventType->addOrganizationUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEventType(EventType $eventType): static
+    {
+        if ($this->event_types->removeElement($eventType)) {
+            $eventType->removeOrganizationUser($this);
+        }
 
         return $this;
     }
