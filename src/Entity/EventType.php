@@ -47,12 +47,19 @@ class EventType
     #[ORM\ManyToMany(targetEntity: OrganizationUser::class, inversedBy: 'event_types')]
     private Collection $organization_users;
 
+    /**
+     * @var Collection<int, PlanningEvent>
+     */
+    #[ORM\OneToMany(targetEntity: PlanningEvent::class, mappedBy: 'event_type')]
+    private Collection $planningEvents;
+
     public function __construct()
     {
         $this->payment_required = false;
         $this->deposit_required = false;
         $this->address_required = false;
         $this->organization_users = new ArrayCollection();
+        $this->planningEvents = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -180,6 +187,36 @@ class EventType
     public function removeOrganizationUser(OrganizationUser $organizationUser): static
     {
         $this->organization_users->removeElement($organizationUser);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PlanningEvent>
+     */
+    public function getPlanningEvents(): Collection
+    {
+        return $this->planningEvents;
+    }
+
+    public function addPlanningEvent(PlanningEvent $planningEvent): static
+    {
+        if (!$this->planningEvents->contains($planningEvent)) {
+            $this->planningEvents->add($planningEvent);
+            $planningEvent->setEventType($this);
+        }
+
+        return $this;
+    }
+
+    public function removePlanningEvent(PlanningEvent $planningEvent): static
+    {
+        if ($this->planningEvents->removeElement($planningEvent)) {
+            // set the owning side to null (unless already changed)
+            if ($planningEvent->getEventType() === $this) {
+                $planningEvent->setEventType(null);
+            }
+        }
 
         return $this;
     }

@@ -46,10 +46,17 @@ class Organization
     #[ORM\JoinColumn(nullable: true)]
     private ?Address $address = null;
 
+    /**
+     * @var Collection<int, Customer>
+     */
+    #[ORM\OneToMany(targetEntity: Customer::class, mappedBy: 'organization', orphanRemoval: true)]
+    private Collection $customers;
+
     public function __construct()
     {
         $this->organization_users = new ArrayCollection();
         $this->eventTypes = new ArrayCollection();
+        $this->customers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -161,6 +168,36 @@ class Organization
     public function setAddress(?Address $address): static
     {
         $this->address = $address;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Customer>
+     */
+    public function getCustomers(): Collection
+    {
+        return $this->customers;
+    }
+
+    public function addCustomer(Customer $customer): static
+    {
+        if (!$this->customers->contains($customer)) {
+            $this->customers->add($customer);
+            $customer->setOrganization($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCustomer(Customer $customer): static
+    {
+        if ($this->customers->removeElement($customer)) {
+            // set the owning side to null (unless already changed)
+            if ($customer->getOrganization() === $this) {
+                $customer->setOrganization(null);
+            }
+        }
 
         return $this;
     }

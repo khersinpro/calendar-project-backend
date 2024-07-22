@@ -30,10 +30,17 @@ class Planning
     #[ORM\OneToMany(targetEntity: CustomPlanningDay::class, mappedBy: 'planning', orphanRemoval: true)]
     private Collection $customPlanningDays;
 
+    /**
+     * @var Collection<int, PlanningEvent>
+     */
+    #[ORM\OneToMany(targetEntity: PlanningEvent::class, mappedBy: 'planning', orphanRemoval: true)]
+    private Collection $planningEvents;
+
     public function __construct()
     {
         $this->planningDays = new ArrayCollection();
         $this->customPlanningDays = new ArrayCollection();
+        $this->planningEvents = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -112,6 +119,36 @@ class Planning
             // set the owning side to null (unless already changed)
             if ($customPlanningDay->getPlanning() === $this) {
                 $customPlanningDay->setPlanning(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PlanningEvent>
+     */
+    public function getPlanningEvents(): Collection
+    {
+        return $this->planningEvents;
+    }
+
+    public function addPlanningEvent(PlanningEvent $planningEvent): static
+    {
+        if (!$this->planningEvents->contains($planningEvent)) {
+            $this->planningEvents->add($planningEvent);
+            $planningEvent->setPlanning($this);
+        }
+
+        return $this;
+    }
+
+    public function removePlanningEvent(PlanningEvent $planningEvent): static
+    {
+        if ($this->planningEvents->removeElement($planningEvent)) {
+            // set the owning side to null (unless already changed)
+            if ($planningEvent->getPlanning() === $this) {
+                $planningEvent->setPlanning(null);
             }
         }
 
