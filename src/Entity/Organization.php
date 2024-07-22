@@ -36,9 +36,16 @@ class Organization
     #[Assert\Url]
     private ?string $website_url = null;
 
+    /**
+     * @var Collection<int, EventType>
+     */
+    #[ORM\OneToMany(targetEntity: EventType::class, mappedBy: 'organization', orphanRemoval: true)]
+    private Collection $eventTypes;
+
     public function __construct()
     {
         $this->organization_users = new ArrayCollection();
+        $this->eventTypes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -108,6 +115,36 @@ class Organization
     public function setWebsiteUrl(?string $website_url): static
     {
         $this->website_url = $website_url;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EventType>
+     */
+    public function getEventTypes(): Collection
+    {
+        return $this->eventTypes;
+    }
+
+    public function addEventType(EventType $eventType): static
+    {
+        if (!$this->eventTypes->contains($eventType)) {
+            $this->eventTypes->add($eventType);
+            $eventType->setOrganization($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEventType(EventType $eventType): static
+    {
+        if ($this->eventTypes->removeElement($eventType)) {
+            // set the owning side to null (unless already changed)
+            if ($eventType->getOrganization() === $this) {
+                $eventType->setOrganization(null);
+            }
+        }
 
         return $this;
     }

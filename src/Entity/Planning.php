@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PlanningRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlanningRepository::class)]
@@ -15,6 +17,24 @@ class Planning
 
     #[ORM\OneToOne(mappedBy: 'planning', cascade: ['persist', 'remove'])]
     private ?OrganizationUser $organization_user = null;
+
+    /**
+     * @var Collection<int, PlanningDay>
+     */
+    #[ORM\OneToMany(targetEntity: PlanningDay::class, mappedBy: 'planning', orphanRemoval: true)]
+    private Collection $planningDays;
+
+    /**
+     * @var Collection<int, CustomPlanningDay>
+     */
+    #[ORM\OneToMany(targetEntity: CustomPlanningDay::class, mappedBy: 'planning', orphanRemoval: true)]
+    private Collection $customPlanningDays;
+
+    public function __construct()
+    {
+        $this->planningDays = new ArrayCollection();
+        $this->customPlanningDays = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -34,6 +54,66 @@ class Planning
         }
         
         $this->organization_user = $organization_user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PlanningDay>
+     */
+    public function getPlanningDays(): Collection
+    {
+        return $this->planningDays;
+    }
+
+    public function addPlanningDay(PlanningDay $planningDay): static
+    {
+        if (!$this->planningDays->contains($planningDay)) {
+            $this->planningDays->add($planningDay);
+            $planningDay->setPlanning($this);
+        }
+
+        return $this;
+    }
+
+    public function removePlanningDay(PlanningDay $planningDay): static
+    {
+        if ($this->planningDays->removeElement($planningDay)) {
+            // set the owning side to null (unless already changed)
+            if ($planningDay->getPlanning() === $this) {
+                $planningDay->setPlanning(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CustomPlanningDay>
+     */
+    public function getCustomPlanningDays(): Collection
+    {
+        return $this->customPlanningDays;
+    }
+
+    public function addCustomPlanningDay(CustomPlanningDay $customPlanningDay): static
+    {
+        if (!$this->customPlanningDays->contains($customPlanningDay)) {
+            $this->customPlanningDays->add($customPlanningDay);
+            $customPlanningDay->setPlanning($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCustomPlanningDay(CustomPlanningDay $customPlanningDay): static
+    {
+        if ($this->customPlanningDays->removeElement($customPlanningDay)) {
+            // set the owning side to null (unless already changed)
+            if ($customPlanningDay->getPlanning() === $this) {
+                $customPlanningDay->setPlanning(null);
+            }
+        }
 
         return $this;
     }
