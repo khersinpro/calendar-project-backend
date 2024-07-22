@@ -20,7 +20,7 @@ class EventType
     #[ORM\Column]
     private ?int $duration = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, options: ['default' => 0])]
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
     private ?string $price = null;
 
     #[ORM\Column]
@@ -29,7 +29,7 @@ class EventType
     #[ORM\Column]
     private ?bool $deposit_required = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, options: ['default' => 0])]
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
     private ?string $deposit_amout = null;
 
     #[ORM\Column]
@@ -38,6 +38,13 @@ class EventType
     #[ORM\ManyToOne(inversedBy: 'eventTypes')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Organization $organization = null;
+
+    public function __construct()
+    {
+        $this->payment_required = false;
+        $this->deposit_required = false;
+        $this->address_required = false;
+    }
 
     public function getId(): ?int
     {
