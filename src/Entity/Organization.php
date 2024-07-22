@@ -42,6 +42,10 @@ class Organization
     #[ORM\OneToMany(targetEntity: EventType::class, mappedBy: 'organization', orphanRemoval: true)]
     private Collection $eventTypes;
 
+    #[ORM\OneToOne(inversedBy: 'organization', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Address $address = null;
+
     public function __construct()
     {
         $this->organization_users = new ArrayCollection();
@@ -145,6 +149,18 @@ class Organization
                 $eventType->setOrganization(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAddress(): ?Address
+    {
+        return $this->address;
+    }
+
+    public function setAddress(?Address $address): static
+    {
+        $this->address = $address;
 
         return $this;
     }
