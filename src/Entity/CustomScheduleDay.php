@@ -3,14 +3,14 @@
 namespace App\Entity;
 
 use App\Enum\WorkingDayStatusEnum;
-use App\Repository\CustomPlanningDayRepository;
+use App\Repository\CustomScheduleDayRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: CustomPlanningDayRepository::class)]
-class CustomPlanningDay
+#[ORM\Entity(repositoryClass: CustomScheduleDayRepository::class)]
+class CustomScheduleDay
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -23,19 +23,19 @@ class CustomPlanningDay
     #[ORM\Column(enumType: WorkingDayStatusEnum::class)]
     private ?WorkingDayStatusEnum $status = null;
 
-    #[ORM\ManyToOne(inversedBy: 'customPlanningDays')]
+    #[ORM\ManyToOne(inversedBy: 'custom_schedule_days')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Planning $planning = null;
+    private ?Schedule $schedule = null;
 
     /**
      * @var Collection<int, CustomWorkingHour>
      */
-    #[ORM\OneToMany(targetEntity: CustomWorkingHour::class, mappedBy: 'custom_planning_day', orphanRemoval: true)]
-    private Collection $customWorkingHours;
+    #[ORM\OneToMany(targetEntity: CustomWorkingHour::class, mappedBy: 'custom_schedule_day', orphanRemoval: true)]
+    private Collection $custom_working_hours;
 
     public function __construct()
     {
-        $this->customWorkingHours = new ArrayCollection();
+        $this->custom_working_hours = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -67,14 +67,14 @@ class CustomPlanningDay
         return $this;
     }
 
-    public function getPlanning(): ?Planning
+    public function getSchedule(): ?Schedule
     {
-        return $this->planning;
+        return $this->schedule;
     }
 
-    public function setPlanning(?Planning $planning): static
+    public function setSchedule(?Schedule $schedule): static
     {
-        $this->planning = $planning;
+        $this->schedule = $schedule;
 
         return $this;
     }
@@ -84,14 +84,14 @@ class CustomPlanningDay
      */
     public function getCustomWorkingHours(): Collection
     {
-        return $this->customWorkingHours;
+        return $this->custom_working_hours;
     }
 
     public function addCustomWorkingHour(CustomWorkingHour $customWorkingHour): static
     {
-        if (!$this->customWorkingHours->contains($customWorkingHour)) {
-            $this->customWorkingHours->add($customWorkingHour);
-            $customWorkingHour->setCustomPlanningDay($this);
+        if (!$this->custom_working_hours->contains($customWorkingHour)) {
+            $this->custom_working_hours->add($customWorkingHour);
+            $customWorkingHour->setCustomScheduleDay($this);
         }
 
         return $this;
@@ -99,10 +99,10 @@ class CustomPlanningDay
 
     public function removeCustomWorkingHour(CustomWorkingHour $customWorkingHour): static
     {
-        if ($this->customWorkingHours->removeElement($customWorkingHour)) {
+        if ($this->custom_working_hours->removeElement($customWorkingHour)) {
             // set the owning side to null (unless already changed)
-            if ($customWorkingHour->getCustomPlanningDay() === $this) {
-                $customWorkingHour->setCustomPlanningDay(null);
+            if ($customWorkingHour->getCustomScheduleDay() === $this) {
+                $customWorkingHour->setCustomScheduleDay(null);
             }
         }
 

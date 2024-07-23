@@ -2,7 +2,7 @@
 
 namespace App\Enum;
 
-enum PlanningEventStatusEnum: string
+enum ScheduleEventStatusEnum: string
 {
     case PENDING = 'PENDING';
     case CONFIRMED = 'CONFIRMED';

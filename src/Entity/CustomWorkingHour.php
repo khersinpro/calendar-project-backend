@@ -20,9 +20,9 @@ class CustomWorkingHour
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $close_time = null;
 
-    #[ORM\ManyToOne(inversedBy: 'customWorkingHours')]
+    #[ORM\ManyToOne(inversedBy: 'custom_working_hours')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?CustomPlanningDay $custom_planning_day = null;
+    private ?CustomScheduleDay $custom_schedule_day = null;
 
     public function getId(): ?int
     {
@@ -53,14 +53,14 @@ class CustomWorkingHour
         return $this;
     }
 
-    public function getCustomPlanningDay(): ?CustomPlanningDay
+    public function getCustomScheduleDay(): ?CustomScheduleDay
     {
-        return $this->custom_planning_day;
+        return $this->custom_schedule_day;
     }
 
-    public function setCustomPlanningDay(?CustomPlanningDay $custom_planning_day): static
+    public function setCustomScheduleDay(?CustomScheduleDay $custom_schedule_day): static
     {
-        $this->custom_planning_day = $custom_planning_day;
+        $this->custom_schedule_day = $custom_schedule_day;
 
         return $this;
     }

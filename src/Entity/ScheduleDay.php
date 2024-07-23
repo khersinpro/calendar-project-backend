@@ -4,13 +4,13 @@ namespace App\Entity;
 
 use App\Enum\DayEnum;
 use App\Enum\WorkingDayStatusEnum;
-use App\Repository\PlanningDayRepository;
+use App\Repository\ScheduleDayRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: PlanningDayRepository::class)]
-class PlanningDay
+#[ORM\Entity(repositoryClass: ScheduleDayRepository::class)]
+class ScheduleDay
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -23,19 +23,19 @@ class PlanningDay
     #[ORM\Column(enumType: WorkingDayStatusEnum::class)]
     private ?WorkingDayStatusEnum $status = null;
 
-    #[ORM\ManyToOne(inversedBy: 'planningDays')]
+    #[ORM\ManyToOne(inversedBy: 'schedule_days')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Planning $planning = null;
+    private ?Schedule $schedule = null;
 
     /**
      * @var Collection<int, WorkingHour>
      */
-    #[ORM\OneToMany(targetEntity: WorkingHour::class, mappedBy: 'planning_day', orphanRemoval: true)]
-    private Collection $workingHours;
+    #[ORM\OneToMany(targetEntity: WorkingHour::class, mappedBy: 'schedule_day', orphanRemoval: true)]
+    private Collection $working_hours;
 
     public function __construct()
     {
-        $this->workingHours = new ArrayCollection();
+        $this->working_hours = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -67,14 +67,14 @@ class PlanningDay
         return $this;
     }
 
-    public function getPlanning(): ?Planning
+    public function getSchedule(): ?Schedule
     {
-        return $this->planning;
+        return $this->schedule;
     }
 
-    public function setPlanning(?Planning $planning): static
+    public function setSchedule(?Schedule $schedule): static
     {
-        $this->planning = $planning;
+        $this->schedule = $schedule;
 
         return $this;
     }
@@ -84,25 +84,25 @@ class PlanningDay
      */
     public function getWorkingHours(): Collection
     {
-        return $this->workingHours;
+        return $this->working_hours;
     }
 
-    public function addWorkingHour(WorkingHour $workingHour): static
+    public function addWorkingHour(WorkingHour $working_hour): static
     {
-        if (!$this->workingHours->contains($workingHour)) {
-            $this->workingHours->add($workingHour);
-            $workingHour->setPlanningDay($this);
+        if (!$this->working_hours->contains($working_hour)) {
+            $this->working_hours->add($working_hour);
+            $working_hour->setScheduleDay($this);
         }
 
         return $this;
     }
 
-    public function removeWorkingHour(WorkingHour $workingHour): static
+    public function removeWorkingHour(WorkingHour $working_hour): static
     {
-        if ($this->workingHours->removeElement($workingHour)) {
+        if ($this->working_hours->removeElement($working_hour)) {
             // set the owning side to null (unless already changed)
-            if ($workingHour->getPlanningDay() === $this) {
-                $workingHour->setPlanningDay(null);
+            if ($working_hour->getScheduleDay() === $this) {
+                $working_hour->setScheduleDay(null);
             }
         }
 

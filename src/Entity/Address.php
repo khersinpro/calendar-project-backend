@@ -28,13 +28,13 @@ class Address
      * @var Collection<int, AddressComplement>
      */
     #[ORM\OneToMany(targetEntity: AddressComplement::class, mappedBy: 'address', orphanRemoval: true)]
-    private Collection $addressComplements;
+    private Collection $address_complements;
 
     /**
      * @var Collection<int, PhoneNumber>
      */
     #[ORM\OneToMany(targetEntity: PhoneNumber::class, mappedBy: 'address', orphanRemoval: true)]
-    private Collection $phoneNumbers;
+    private Collection $phone_numbers;
 
     #[ORM\ManyToOne(inversedBy: 'addresses')]
     private ?Country $country = null;
@@ -44,8 +44,8 @@ class Address
 
     public function __construct()
     {
-        $this->addressComplements = new ArrayCollection();
-        $this->phoneNumbers = new ArrayCollection();
+        $this->address_complements = new ArrayCollection();
+        $this->phone_numbers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -94,25 +94,25 @@ class Address
      */
     public function getAddressComplements(): Collection
     {
-        return $this->addressComplements;
+        return $this->address_complements;
     }
 
-    public function addAddressComplement(AddressComplement $addressComplement): static
+    public function addAddressComplement(AddressComplement $address_complement): static
     {
-        if (!$this->addressComplements->contains($addressComplement)) {
-            $this->addressComplements->add($addressComplement);
-            $addressComplement->setAddress($this);
+        if (!$this->address_complements->contains($address_complement)) {
+            $this->address_complements->add($address_complement);
+            $address_complement->setAddress($this);
         }
 
         return $this;
     }
 
-    public function removeAddressComplement(AddressComplement $addressComplement): static
+    public function removeAddressComplement(AddressComplement $address_complement): static
     {
-        if ($this->addressComplements->removeElement($addressComplement)) {
+        if ($this->address_complements->removeElement($address_complement)) {
             // set the owning side to null (unless already changed)
-            if ($addressComplement->getAddress() === $this) {
-                $addressComplement->setAddress(null);
+            if ($address_complement->getAddress() === $this) {
+                $address_complement->setAddress(null);
             }
         }
 
@@ -124,25 +124,25 @@ class Address
      */
     public function getPhoneNumbers(): Collection
     {
-        return $this->phoneNumbers;
+        return $this->phone_numbers;
     }
 
-    public function addPhoneNumber(PhoneNumber $phoneNumber): static
+    public function addPhoneNumber(PhoneNumber $phone_number): static
     {
-        if (!$this->phoneNumbers->contains($phoneNumber)) {
-            $this->phoneNumbers->add($phoneNumber);
-            $phoneNumber->setAddress($this);
+        if (!$this->phone_numbers->contains($phone_number)) {
+            $this->phone_numbers->add($phone_number);
+            $phone_number->setAddress($this);
         }
 
         return $this;
     }
 
-    public function removePhoneNumber(PhoneNumber $phoneNumber): static
+    public function removePhoneNumber(PhoneNumber $phone_number): static
     {
-        if ($this->phoneNumbers->removeElement($phoneNumber)) {
+        if ($this->phone_numbers->removeElement($phone_number)) {
             // set the owning side to null (unless already changed)
-            if ($phoneNumber->getAddress() === $this) {
-                $phoneNumber->setAddress(null);
+            if ($phone_number->getAddress() === $this) {
+                $phone_number->setAddress(null);
             }
         }
 

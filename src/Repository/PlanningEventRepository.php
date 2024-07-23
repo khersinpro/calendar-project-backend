@@ -2,22 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\PlanningEvent;
+use App\Entity\ScheduleEvent;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<PlanningEvent>
+ * @extends ServiceEntityRepository<ScheduleEvent>
  */
-class PlanningEventRepository extends ServiceEntityRepository
+class ScheduleEventRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, PlanningEvent::class);
+        parent::__construct($registry, ScheduleEvent::class);
     }
 
     //    /**
-    //     * @return PlanningEvent[] Returns an array of PlanningEvent objects
+    //     * @return ScheduleEvent[] Returns an array of ScheduleEvent objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -31,7 +31,7 @@ class PlanningEventRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?PlanningEvent
+    //    public function findOneBySomeField($value): ?ScheduleEvent
     //    {
     //        return $this->createQueryBuilder('p')
     //            ->andWhere('p.exampleField = :val')

@@ -16,7 +16,7 @@ class PhoneNumber
     #[ORM\Column]
     private ?int $number = null;
 
-    #[ORM\ManyToOne(inversedBy: 'phoneNumbers')]
+    #[ORM\ManyToOne(inversedBy: 'phone_numbers')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Address $address = null;
 

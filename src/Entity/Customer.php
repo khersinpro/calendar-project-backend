@@ -32,14 +32,14 @@ class Customer
     private ?Organization $organization = null;
 
     /**
-     * @var Collection<int, PlanningEvent>
+     * @var Collection<int, ScheduleEvent>
      */
-    #[ORM\OneToMany(targetEntity: PlanningEvent::class, mappedBy: 'customer', orphanRemoval: true)]
-    private Collection $planing_events;
+    #[ORM\OneToMany(targetEntity: ScheduleEvent::class, mappedBy: 'customer', orphanRemoval: true)]
+    private Collection $schedule_events;
 
     public function __construct()
     {
-        $this->planing_events = new ArrayCollection();
+        $this->schedule_events = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -108,29 +108,29 @@ class Customer
     }
 
     /**
-     * @return Collection<int, PlanningEvent>
+     * @return Collection<int, ScheduleEvent>
      */
     public function getPlaningEvents(): Collection
     {
-        return $this->planing_events;
+        return $this->schedule_events;
     }
 
-    public function addPlaningEvent(PlanningEvent $planingEvent): static
+    public function addPlaningEvent(ScheduleEvent $schedule_event): static
     {
-        if (!$this->planing_events->contains($planingEvent)) {
-            $this->planing_events->add($planingEvent);
-            $planingEvent->setCustomer($this);
+        if (!$this->schedule_events->contains($schedule_event)) {
+            $this->schedule_events->add($schedule_event);
+            $schedule_event->setCustomer($this);
         }
 
         return $this;
     }
 
-    public function removePlaningEvent(PlanningEvent $planingEvent): static
+    public function removePlaningEvent(ScheduleEvent $schedule_event): static
     {
-        if ($this->planing_events->removeElement($planingEvent)) {
+        if ($this->schedule_events->removeElement($schedule_event)) {
             // set the owning side to null (unless already changed)
-            if ($planingEvent->getCustomer() === $this) {
-                $planingEvent->setCustomer(null);
+            if ($schedule_event->getCustomer() === $this) {
+                $schedule_event->setCustomer(null);
             }
         }
 

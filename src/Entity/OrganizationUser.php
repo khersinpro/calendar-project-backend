@@ -26,7 +26,7 @@ class OrganizationUser
 
     #[ORM\OneToOne(inversedBy: 'organization_user', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Planning $planning = null;
+    private ?Schedule $schedule = null;
 
     /**
      * @var Collection<int, EventType>
@@ -72,14 +72,14 @@ class OrganizationUser
         return $this;
     }
 
-    public function getPlanning(): ?Planning
+    public function getSchedule(): ?Schedule
     {
-        return $this->planning;
+        return $this->schedule;
     }
 
-    public function setPlanning(Planning $planning): static
+    public function setSchedule(Schedule $schedule): static
     {
-        $this->planning = $planning;
+        $this->schedule = $schedule;
 
         return $this;
     }
@@ -92,24 +92,24 @@ class OrganizationUser
         return $this->event_types;
     }
 
-    public function addEventType(EventType $eventType): static
+    public function addEventType(EventType $event_type): static
     {
-        if ($eventType->getOrganization() !== $this->getOrganization()) {
+        if ($event_type->getOrganization() !== $this->getOrganization()) {
             throw new \Exception('The user oganization must be the same as the event organization');
         }
 
-        if (!$this->event_types->contains($eventType)) {
-            $this->event_types->add($eventType);
-            $eventType->addOrganizationUser($this);
+        if (!$this->event_types->contains($event_type)) {
+            $this->event_types->add($event_type);
+            $event_type->addOrganizationUser($this);
         }
 
         return $this;
     }
 
-    public function removeEventType(EventType $eventType): static
+    public function removeEventType(EventType $event_type): static
     {
-        if ($this->event_types->removeElement($eventType)) {
-            $eventType->removeOrganizationUser($this);
+        if ($this->event_types->removeElement($event_type)) {
+            $event_type->removeOrganizationUser($this);
         }
 
         return $this;

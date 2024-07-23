@@ -36,7 +36,7 @@ class UserProvider
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $token_expire = null;
     
-    #[ORM\ManyToOne(inversedBy: 'userProviders')]
+    #[ORM\ManyToOne(inversedBy: 'user_providers')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
     

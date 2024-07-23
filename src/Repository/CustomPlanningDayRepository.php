@@ -2,22 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\CustomPlanningDay;
+use App\Entity\CustomScheduleDay;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<CustomPlanningDay>
+ * @extends ServiceEntityRepository<CustomScheduleDay>
  */
-class CustomPlanningDayRepository extends ServiceEntityRepository
+class CustomScheduleDayRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, CustomPlanningDay::class);
+        parent::__construct($registry, CustomScheduleDay::class);
     }
 
     //    /**
-    //     * @return CustomPlanningDay[] Returns an array of CustomPlanningDay objects
+    //     * @return CustomScheduleDay[] Returns an array of CustomScheduleDay objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -31,7 +31,7 @@ class CustomPlanningDayRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?CustomPlanningDay
+    //    public function findOneBySomeField($value): ?CustomScheduleDay
     //    {
     //        return $this->createQueryBuilder('c')
     //            ->andWhere('c.exampleField = :val')

@@ -16,7 +16,7 @@ class AddressComplement
     #[ORM\Column(length: 255)]
     private ?string $complement = null;
 
-    #[ORM\ManyToOne(inversedBy: 'addressComplements')]
+    #[ORM\ManyToOne(inversedBy: 'address_complements')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Address $address = null;
 

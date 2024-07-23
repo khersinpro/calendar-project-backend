@@ -41,7 +41,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         return $this->paginator->paginate(
             $this->createQueryBuilder('u')
             ->select('u')
-            ->leftJoin('u.userProviders', 'up')
+            ->leftJoin('u.user_providers', 'up')
             ->addSelect('up')
             ->orderBy('u.id', 'ASC'),
             $page,

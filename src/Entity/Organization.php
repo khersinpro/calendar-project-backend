@@ -46,7 +46,7 @@ class Organization
      * @var Collection<int, EventType>
      */
     #[ORM\OneToMany(targetEntity: EventType::class, mappedBy: 'organization', orphanRemoval: true)]
-    private Collection $eventTypes;
+    private Collection $event_types;
 
     #[ORM\OneToOne(inversedBy: 'organization', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: true)]
@@ -61,7 +61,7 @@ class Organization
     public function __construct()
     {
         $this->organization_users = new ArrayCollection();
-        $this->eventTypes = new ArrayCollection();
+        $this->event_types = new ArrayCollection();
         $this->customers = new ArrayCollection();
     }
 
@@ -141,25 +141,25 @@ class Organization
      */
     public function getEventTypes(): Collection
     {
-        return $this->eventTypes;
+        return $this->event_types;
     }
 
-    public function addEventType(EventType $eventType): static
+    public function addEventType(EventType $event_type): static
     {
-        if (!$this->eventTypes->contains($eventType)) {
-            $this->eventTypes->add($eventType);
-            $eventType->setOrganization($this);
+        if (!$this->event_types->contains($event_type)) {
+            $this->event_types->add($event_type);
+            $event_type->setOrganization($this);
         }
 
         return $this;
     }
 
-    public function removeEventType(EventType $eventType): static
+    public function removeEventType(EventType $event_type): static
     {
-        if ($this->eventTypes->removeElement($eventType)) {
+        if ($this->event_types->removeElement($event_type)) {
             // set the owning side to null (unless already changed)
-            if ($eventType->getOrganization() === $this) {
-                $eventType->setOrganization(null);
+            if ($event_type->getOrganization() === $this) {
+                $event_type->setOrganization(null);
             }
         }
 

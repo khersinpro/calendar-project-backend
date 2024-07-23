@@ -37,7 +37,7 @@ class EventType
     #[ORM\Column]
     private ?bool $address_required = null;
 
-    #[ORM\ManyToOne(inversedBy: 'eventTypes')]
+    #[ORM\ManyToOne(inversedBy: 'event_types')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Organization $organization = null;
 
@@ -48,10 +48,10 @@ class EventType
     private Collection $organization_users;
 
     /**
-     * @var Collection<int, PlanningEvent>
+     * @var Collection<int, ScheduleEvent>
      */
-    #[ORM\OneToMany(targetEntity: PlanningEvent::class, mappedBy: 'event_type')]
-    private Collection $planningEvents;
+    #[ORM\OneToMany(targetEntity: ScheduleEvent::class, mappedBy: 'event_type')]
+    private Collection $schedule_events;
 
     public function __construct()
     {
@@ -59,7 +59,7 @@ class EventType
         $this->deposit_required = false;
         $this->address_required = false;
         $this->organization_users = new ArrayCollection();
-        $this->planningEvents = new ArrayCollection();
+        $this->schedule_events = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -171,50 +171,50 @@ class EventType
         return $this->organization_users;
     }
 
-    public function addOrganizationUser(OrganizationUser $organizationUser): static
+    public function addOrganizationUser(OrganizationUser $organization_user): static
     {
-        if ($organizationUser->getOrganization() !== $this->getOrganization()) {
+        if ($organization_user->getOrganization() !== $this->getOrganization()) {
             throw new \Exception('The user oganization must be the same as the event organization');
         }
         
-        if (!$this->organization_users->contains($organizationUser)) {
-            $this->organization_users->add($organizationUser);
+        if (!$this->organization_users->contains($organization_user)) {
+            $this->organization_users->add($organization_user);
         }
 
         return $this;
     }
 
-    public function removeOrganizationUser(OrganizationUser $organizationUser): static
+    public function removeOrganizationUser(OrganizationUser $organization_user): static
     {
-        $this->organization_users->removeElement($organizationUser);
+        $this->organization_users->removeElement($organization_user);
 
         return $this;
     }
 
     /**
-     * @return Collection<int, PlanningEvent>
+     * @return Collection<int, ScheduleEvent>
      */
-    public function getPlanningEvents(): Collection
+    public function getScheduleEvents(): Collection
     {
-        return $this->planningEvents;
+        return $this->schedule_events;
     }
 
-    public function addPlanningEvent(PlanningEvent $planningEvent): static
+    public function addScheduleEvent(ScheduleEvent $schedule_event): static
     {
-        if (!$this->planningEvents->contains($planningEvent)) {
-            $this->planningEvents->add($planningEvent);
-            $planningEvent->setEventType($this);
+        if (!$this->schedule_events->contains($schedule_event)) {
+            $this->schedule_events->add($schedule_event);
+            $schedule_event->setEventType($this);
         }
 
         return $this;
     }
 
-    public function removePlanningEvent(PlanningEvent $planningEvent): static
+    public function removeScheduleEvent(ScheduleEvent $schedule_event): static
     {
-        if ($this->planningEvents->removeElement($planningEvent)) {
+        if ($this->schedule_events->removeElement($schedule_event)) {
             // set the owning side to null (unless already changed)
-            if ($planningEvent->getEventType() === $this) {
-                $planningEvent->setEventType(null);
+            if ($schedule_event->getEventType() === $this) {
+                $schedule_event->setEventType(null);
             }
         }
 

@@ -72,9 +72,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, UserProvider>
      */
-    #[Groups(['userProvider.read'])]
+    #[Groups(['user_provider.read'])]
     #[ORM\OneToMany(targetEntity: UserProvider::class, mappedBy: 'user', orphanRemoval: true, cascade: ['persist', 'remove'])]
-    private Collection $userProviders;
+    private Collection $user_providers;
 
     /**
      * @var Collection<int, OrganizationUser>
@@ -84,7 +84,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
-        $this->userProviders = new ArrayCollection();
+        $this->user_providers = new ArrayCollection();
         $this->organization_users = new ArrayCollection();
     }
 
@@ -192,25 +192,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserProviders(): Collection
     {
-        return $this->userProviders;
+        return $this->user_providers;
     }
 
-    public function addUserProvider(UserProvider $userProvider): static
+    public function addUserProvider(UserProvider $user_provider): static
     {
-        if (!$this->userProviders->contains($userProvider)) {
-            $this->userProviders->add($userProvider);
-            $userProvider->setUser($this);
+        if (!$this->user_providers->contains($user_provider)) {
+            $this->user_providers->add($user_provider);
+            $user_provider->setUser($this);
         }
 
         return $this;
     }
 
-    public function removeUserProvider(UserProvider $userProvider): static
+    public function removeUserProvider(UserProvider $user_provider): static
     {
-        if ($this->userProviders->removeElement($userProvider)) {
+        if ($this->user_providers->removeElement($user_provider)) {
             // set the owning side to null (unless already changed)
-            if ($userProvider->getUser() === $this) {
-                $userProvider->setUser(null);
+            if ($user_provider->getUser() === $this) {
+                $user_provider->setUser(null);
             }
         }
 
@@ -225,22 +225,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->organization_users;
     }
 
-    public function addOrganizationUser(OrganizationUser $organizationUser): static
+    public function addOrganizationUser(OrganizationUser $organization_user): static
     {
-        if (!$this->organization_users->contains($organizationUser)) {
-            $this->organization_users->add($organizationUser);
-            $organizationUser->setUser($this);
+        if (!$this->organization_users->contains($organization_user)) {
+            $this->organization_users->add($organization_user);
+            $organization_user->setUser($this);
         }
 
         return $this;
     }
 
-    public function removeOrganizationUser(OrganizationUser $organizationUser): static
+    public function removeOrganizationUser(OrganizationUser $organization_user): static
     {
-        if ($this->organization_users->removeElement($organizationUser)) {
+        if ($this->organization_users->removeElement($organization_user)) {
             // set the owning side to null (unless already changed)
-            if ($organizationUser->getUser() === $this) {
-                $organizationUser->setUser(null);
+            if ($organization_user->getUser() === $this) {
+                $organization_user->setUser(null);
             }
         }
 

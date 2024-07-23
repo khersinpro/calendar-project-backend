@@ -20,9 +20,9 @@ class WorkingHour
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $close_time = null;
 
-    #[ORM\ManyToOne(inversedBy: 'workingHours')]
+    #[ORM\ManyToOne(inversedBy: 'working_hours')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?PlanningDay $planning_day = null;
+    private ?ScheduleDay $schedule_day = null;
 
     public function getId(): ?int
     {
@@ -53,14 +53,14 @@ class WorkingHour
         return $this;
     }
 
-    public function getPlanningDay(): ?PlanningDay
+    public function getScheduleDay(): ?ScheduleDay
     {
-        return $this->planning_day;
+        return $this->schedule_day;
     }
 
-    public function setPlanningDay(?PlanningDay $planning_day): static
+    public function setScheduleDay(?ScheduleDay $schedule_day): static
     {
-        $this->planning_day = $planning_day;
+        $this->schedule_day = $schedule_day;
 
         return $this;
     }

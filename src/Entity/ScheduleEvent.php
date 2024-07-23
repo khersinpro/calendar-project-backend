@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Enum\PlanningEventStatusEnum;
-use App\Repository\PlanningEventRepository;
+use App\Enum\ScheduleEventStatusEnum;
+use App\Repository\ScheduleEventRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: PlanningEventRepository::class)]
-class PlanningEvent
+#[ORM\Entity(repositoryClass: ScheduleEventRepository::class)]
+class ScheduleEvent
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -21,8 +21,8 @@ class PlanningEvent
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $end_date = null;
 
-    #[ORM\Column(enumType: PlanningEventStatusEnum::class)]
-    private ?PlanningEventStatusEnum $status = null;
+    #[ORM\Column(enumType: ScheduleEventStatusEnum::class)]
+    private ?ScheduleEventStatusEnum $status = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $guest_first_name = null;
@@ -33,11 +33,11 @@ class PlanningEvent
     #[ORM\Column(nullable: true)]
     private ?int $guest_phone = null;
 
-    #[ORM\ManyToOne(inversedBy: 'planningEvents')]
+    #[ORM\ManyToOne(inversedBy: 'schedule_events')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Planning $planning = null;
+    private ?Schedule $schedule = null;
 
-    #[ORM\ManyToOne(inversedBy: 'planningEvents')]
+    #[ORM\ManyToOne(inversedBy: 'schedule_events')]
     #[ORM\JoinColumn(nullable: false)]
     private ?EventType $event_type = null;
 
@@ -45,7 +45,7 @@ class PlanningEvent
     #[ORM\JoinColumn(nullable: false)]
     private ?Address $adress = null;
 
-    #[ORM\ManyToOne(inversedBy: 'planing_events')]
+    #[ORM\ManyToOne(inversedBy: 'schedule_events')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Customer $customer = null;
 
@@ -78,12 +78,12 @@ class PlanningEvent
         return $this;
     }
 
-    public function getStatus(): ?PlanningEventStatusEnum
+    public function getStatus(): ?ScheduleEventStatusEnum
     {
         return $this->status;
     }
 
-    public function setStatus(PlanningEventStatusEnum $status): static
+    public function setStatus(ScheduleEventStatusEnum $status): static
     {
         $this->status = $status;
 
@@ -126,14 +126,14 @@ class PlanningEvent
         return $this;
     }
 
-    public function getPlanning(): ?Planning
+    public function getSchedule(): ?Schedule
     {
-        return $this->planning;
+        return $this->schedule;
     }
 
-    public function setPlanning(?Planning $planning): static
+    public function setSchedule(?Schedule $schedule): static
     {
-        $this->planning = $planning;
+        $this->schedule = $schedule;
 
         return $this;
     }
