@@ -7,6 +7,7 @@ use App\Repository\OrganizationUserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: OrganizationUserRepository::class)]
 class OrganizationUser
@@ -14,27 +15,33 @@ class OrganizationUser
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['organization_user.read, organization.read'])]
     private ?int $id = null;
-
+    
     #[ORM\ManyToOne(inversedBy: 'organization_users')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['user.read, organization.read'])]
     private ?User $user = null;
-
+    
     #[ORM\ManyToOne(inversedBy: 'organization_users')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['organization_user.read'])]
     private ?Organization $organization = null;
 
     #[ORM\OneToOne(inversedBy: 'organization_user', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['schedule.read', 'organization.read'])]
     private ?Schedule $schedule = null;
 
     /**
      * @var Collection<int, EventType>
      */
     #[ORM\ManyToMany(targetEntity: EventType::class, mappedBy: 'organization_users')]
+    #[Groups(['event_type.read', 'organization.read'])]
     private Collection $event_types;
 
     #[ORM\Column(enumType: OrganizationRoleEnum::class)]
+    #[Groups(['organization_user.read', 'organization.read'])]
     private ?OrganizationRoleEnum $organization_role = null;
 
     public function __construct()

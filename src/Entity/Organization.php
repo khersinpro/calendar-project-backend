@@ -21,8 +21,8 @@ class Organization
     /**
      * @var Collection<int, OrganizationUser>
      */
-    #[Groups(['organization.read'])]
     #[ORM\OneToMany(targetEntity: OrganizationUser::class, mappedBy: 'organization', orphanRemoval: true)]
+    #[Groups(['organization.read'])]
     private Collection $organization_users;
 
     #[Groups(['organization.read', 'organization.create', 'organization.update'])]
@@ -33,7 +33,6 @@ class Organization
 
     #[Groups(['organization.read', 'organization.create', 'organization.update'])]
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\NotBlank]
     #[Assert\Email]
     private ?string $email = null;
 

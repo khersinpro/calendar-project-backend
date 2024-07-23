@@ -4,8 +4,19 @@ namespace App\Controller;
 
 use App\DTO\PaginationDTO;
 use App\Entity\Organization;
+use App\Entity\OrganizationUser;
+use App\Entity\Schedule;
+use App\Entity\ScheduleDay;
 use App\Entity\User;
+use App\Entity\WorkingHour;
+use App\Enum\DayEnum;
+use App\Enum\OrganizationRoleEnum;
+use App\Enum\WorkingDayStatusEnum;
 use App\Repository\OrganizationRepository;
+use App\Service\EntityService\OrganizationUserService;
+use App\Service\EntityService\ScheduleDayService;
+use App\Service\EntityService\ScheduleService;
+use App\Service\EntityService\WorkingHourService;
 use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,8 +43,11 @@ class OrganizationController extends AbstractController
     #[Route(name: 'organization.index', methods: ['GET'])]
     public function list(#[MapQueryString] ?PaginationDTO $paginationDTO): JsonResponse
     {
-        $orgnaizations = $this->repository->findAllPaginated($paginationDTO?->page ?? 1, $paginationDTO?->limit ?? 10);
-        return $this->json($orgnaizations, JsonResponse::HTTP_OK, [], ['groups' => 'organization.read']);
+        $organizations = $this->repository->findAllPaginated($paginationDTO?->page ?? 1, $paginationDTO?->limit ?? 10);
+        
+        return $this->json($organizations, JsonResponse::HTTP_OK, [], ['groups' => [
+            'organization.read'
+        ]]);
     }
 
     #[Route('/{id}', name: 'organization.show', methods: ['GET'], requirements: ['id' =>  Requirement::DIGITS])]
@@ -44,16 +58,40 @@ class OrganizationController extends AbstractController
 
     #[Route(name: 'organization.create', methods: ['POST'])]
     public function create(
-        Request $request,
         #[MapRequestPayload(serializationContext:['groups' => ['organization.create']])] Organization $organization,
-        #[CurrentUser] User $user
+        #[CurrentUser] User $user,
+        OrganizationUserService $organizationUserService,
+        ScheduleService $scheduleService,
+        ScheduleDayService $scheduleDayService,
+        WorkingHourService $workingHourService
     ): JsonResponse
     {
-        // Ajouter l'utilisateur a l'organization, voir pour créer un setter directement sur l'entité qui créer l'organizationUser
-        // Création du planning a l'organization user
-        // Création des planning days et ajout au planning
-        // Création des planning hours de base et auw working days
-        // Sauvegarde de l'organization dans la bdd
+        $this->em->persist($organization);
+        
+        $organizationUser = $organizationUserService->createOrganizationUser(
+            $organization, 
+            $user, 
+            OrganizationRoleEnum::ADMIN
+        );
+
+        $schedule = $scheduleService->createSchedule($organizationUser);
+
+        // For each day of the week, create a schedule day and a working hour
+        foreach (DayEnum::cases() as $day) {
+            $workingStatus = in_array($day, [DayEnum::SUNDAY, DayEnum::SATURDAY]) 
+            ? WorkingDayStatusEnum::NOT_WORKING 
+            : WorkingDayStatusEnum::WORKING;
+
+            $scheduleDay = $scheduleDayService->createScheduleDay($schedule, $day, $workingStatus);
+
+            $workingHourService->createWorkingHour(
+                $scheduleDay, 
+                new \DateTime('08:00:00'), 
+                new \DateTime('17:00:00')
+            );
+        }
+
+        $this->em->flush();
 
         return $this->json($organization, JsonResponse::HTTP_CREATED, [], ['groups' => 'organization.read']);
     }
