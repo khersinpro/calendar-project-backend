@@ -27,8 +27,8 @@ class UserController extends AbstractController
     public function list(#[MapQueryString] ?PaginationDTO $paginationDTO): JsonResponse
     {
         $user = $this->repository->findAllPaginated($paginationDTO?->page ?? 1, $paginationDTO?->limit ?? 10);
-
-        return $this->json($user, JsonResponse::HTTP_OK, [], ['groups' => 'user.read']);
+        
+        return $this->json($user, JsonResponse::HTTP_OK, [], ['groups' => ['user.read', 'userProvider.read']]);
     }
 
     #[Route('/{id}', name: 'user.show', methods: ['GET'], requirements: ['id' => '\d+'])]

@@ -7,10 +7,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: OrganizationRepository::class)]
 class Organization
 {
+    #[Groups(['organization.read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -19,19 +21,23 @@ class Organization
     /**
      * @var Collection<int, OrganizationUser>
      */
+    #[Groups(['organization.read'])]
     #[ORM\OneToMany(targetEntity: OrganizationUser::class, mappedBy: 'organization', orphanRemoval: true)]
     private Collection $organization_users;
 
+    #[Groups(['organization.read', 'organization.create', 'organization.update'])]
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 255, minMessage: 'The name must be at least 2 characters', maxMessage: 'The name cannot be longer than 255 characters')]
     private ?string $name = null;
 
+    #[Groups(['organization.read', 'organization.create', 'organization.update'])]
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\NotBlank]
     #[Assert\Email]
     private ?string $email = null;
 
+    #[Groups(['organization.read', 'organization.create', 'organization.update'])]
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Url]
     private ?string $website_url = null;

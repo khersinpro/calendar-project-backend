@@ -6,34 +6,41 @@ use App\Enum\UserProviderEnum;
 use App\Repository\UserProviderRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserProviderRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_8D6F9AC48486F9AC', columns: ['unique_id', 'type'])]
 class UserProvider
 {
+    #[Groups(['userProvider.read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
-
+    
+    #[Groups(['userProvider.read'])]
     #[ORM\Column(enumType: UserProviderEnum::class)]
     private ?UserProviderEnum $type = null;
-
+    
+    #[Groups(['userProvider.read'])]
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     private ?string $access_token = null;
-
+    
+    #[Groups(['userProvider.read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $refresh_token = null;
-
+    
+    #[Groups(['userProvider.read'])]
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $token_expire = null;
-
+    
     #[ORM\ManyToOne(inversedBy: 'userProviders')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
-
+    
+    #[Groups(['userProvider.read'])]
     #[ORM\Column]
     private ?string $unique_id = null;
 

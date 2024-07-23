@@ -72,6 +72,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, UserProvider>
      */
+    #[Groups(['userProvider.read'])]
     #[ORM\OneToMany(targetEntity: UserProvider::class, mappedBy: 'user', orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $userProviders;
 
