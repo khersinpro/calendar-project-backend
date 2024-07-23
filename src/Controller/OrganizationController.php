@@ -44,7 +44,7 @@ class OrganizationController extends AbstractController
     public function list(#[MapQueryString] ?PaginationDTO $paginationDTO): JsonResponse
     {
         $organizations = $this->repository->findAllPaginated($paginationDTO?->page ?? 1, $paginationDTO?->limit ?? 10);
-        
+
         return $this->json($organizations, JsonResponse::HTTP_OK, [], ['groups' => [
             'organization.read'
         ]]);
@@ -114,38 +114,11 @@ class OrganizationController extends AbstractController
     }
 
     #[Route('/{id}', name: 'organization.delete', methods: ['DELETE'], requirements: ['id' =>  Requirement::DIGITS])]
-    public function delete(): JsonResponse
+    public function delete(Organization $organization): JsonResponse
     {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/OrganizationController.php',
-        ]);
-    }
+        $this->em->remove($organization);
+        $this->em->flush();
 
-    #[Route('/{id}/user', name: 'organization.add_user', methods: ['POST'], requirements: ['id' =>  Requirement::DIGITS])]
-    public function addUser(): JsonResponse
-    {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/OrganizationController.php',
-        ]);
-    }
-
-    #[Route('/{id}/user', name: 'organization.update_user', methods: ['PUT'], requirements: ['id' =>  Requirement::DIGITS])]
-    public function updateUser(): JsonResponse
-    {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/OrganizationController.php',
-        ]);
-    }
-
-    #[Route('/{id}/user/{user_id}', name: 'organization.remove_user', methods: ['DELETE'], requirements: ['id' =>  Requirement::DIGITS, 'user_id' =>  Requirement::DIGITS])]
-    public function removeUser(): JsonResponse
-    {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/OrganizationController.php',
-        ]);
+        return $this->json('', JsonResponse::HTTP_NO_CONTENT);
     }
 }
