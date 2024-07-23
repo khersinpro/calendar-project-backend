@@ -9,23 +9,25 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 
+
 #[ORM\Entity(repositoryClass: OrganizationUserRepository::class)]
+#[ORM\UniqueConstraint(name: 'UNIQ_ORGANIZATION_USER', columns: ['organization_id', 'user_id'])]
 class OrganizationUser
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['organization_user.read, organization.read'])]
+    #[Groups(['organization_user.read', 'organization.read'])]
     private ?int $id = null;
     
     #[ORM\ManyToOne(inversedBy: 'organization_users')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['user.read, organization.read'])]
+    #[Groups(['user.read', 'organization.read', 'organization_user.read', 'organization_user.create', 'organization_user.update'])]
     private ?User $user = null;
     
     #[ORM\ManyToOne(inversedBy: 'organization_users')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['organization_user.read'])]
+    #[Groups(['organization_user.read', 'organization_user.create', 'organization_user.update'])]
     private ?Organization $organization = null;
 
     #[ORM\OneToOne(inversedBy: 'organization_user', cascade: ['persist', 'remove'])]

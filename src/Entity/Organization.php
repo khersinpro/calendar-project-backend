@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Entity(repositoryClass: OrganizationRepository::class)]
 class Organization
 {
-    #[Groups(['organization.read'])]
+    #[Groups(['organization.read', 'organization_user.read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -25,7 +25,7 @@ class Organization
     #[Groups(['organization.read'])]
     private Collection $organization_users;
 
-    #[Groups(['organization.read', 'organization.create', 'organization.update'])]
+    #[Groups(['organization.read', 'organization.create', 'organization.update', 'organization_user.read'])]
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 255, minMessage: 'The name must be at least 2 characters', maxMessage: 'The name cannot be longer than 255 characters')]
