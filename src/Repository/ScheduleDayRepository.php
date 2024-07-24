@@ -5,39 +5,29 @@ namespace App\Repository;
 use App\Entity\ScheduleDay;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Knp\Component\Pager\PaginatorInterface;
 
 /**
  * @extends ServiceEntityRepository<ScheduleDay>
  */
 class ScheduleDayRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(
+        ManagerRegistry $registry,
+        private PaginatorInterface $paginator
+    )
     {
         parent::__construct($registry, ScheduleDay::class);
     }
 
-    //    /**
-    //     * @return ScheduleDay[] Returns an array of ScheduleDay objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?ScheduleDay
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function findAllPaginated(int $page = 1, int $limit = 10): \Knp\Component\Pager\Pagination\PaginationInterface
+    {
+        return $this->paginator->paginate(
+            $this->createQueryBuilder('s')
+            ->select('s')
+            ->orderBy('s.id', 'ASC'),
+            $page,
+            $limit
+        );
+    }
 }

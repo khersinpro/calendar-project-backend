@@ -13,15 +13,15 @@ class WorkingHour
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['schedule.read'])]
+    #[Groups(['schedule.read', 'working_hour.read', 'schedule_day.read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(['schedule.read'])]
+    #[Groups(['schedule.read', 'working_hour.read', 'schedule_day.read'])]
     private ?\DateTimeInterface $open_time = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(['schedule.read'])]
+    #[Groups(['schedule.read', 'working_hour.read', 'schedule_day.read'])]
     private ?\DateTimeInterface $close_time = null;
 
     #[ORM\ManyToOne(inversedBy: 'working_hours')]

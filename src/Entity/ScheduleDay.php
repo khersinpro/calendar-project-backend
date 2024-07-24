@@ -16,15 +16,15 @@ class ScheduleDay
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['schedule.read'])]
+    #[Groups(['schedule.read', 'schedule_day.read'])]
     private ?int $id = null;
 
     #[ORM\Column(enumType: DayEnum::class)]
-    #[Groups(['schedule.read'])]
+    #[Groups(['schedule.read', 'schedule_day.read'])]
     private ?DayEnum $day_of_week = null;
 
     #[ORM\Column(enumType: WorkingDayStatusEnum::class)]
-    #[Groups(['schedule.read'])]
+    #[Groups(['schedule.read', 'schedule_day.read'])]
     private ?WorkingDayStatusEnum $status = null;
 
     #[ORM\ManyToOne(inversedBy: 'schedule_days')]
@@ -35,7 +35,7 @@ class ScheduleDay
      * @var Collection<int, WorkingHour>
      */
     #[ORM\OneToMany(targetEntity: WorkingHour::class, mappedBy: 'schedule_day', orphanRemoval: true)]
-    #[Groups(['schedule.read'])]
+    #[Groups(['schedule.read', 'schedule_day.read'])]
     private Collection $working_hours;
 
     public function __construct()
