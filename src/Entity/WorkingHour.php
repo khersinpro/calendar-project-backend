@@ -6,6 +6,7 @@ use App\Repository\WorkingHourRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: WorkingHourRepository::class)]
 class WorkingHour
@@ -16,12 +17,12 @@ class WorkingHour
     #[Groups(['schedule.read', 'working_hour.read', 'schedule_day.read'])]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(['schedule.read', 'working_hour.read', 'schedule_day.read'])]
+    #[ORM\Column(type: Types::TIME_MUTABLE)]
+    #[Groups(['schedule.read', 'working_hour.read', 'schedule_day.read', 'working_hour.create', 'working_hour.update'])]
     private ?\DateTimeInterface $open_time = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(['schedule.read', 'working_hour.read', 'schedule_day.read'])]
+    #[ORM\Column(type: Types::TIME_MUTABLE)]
+    #[Groups(['schedule.read', 'working_hour.read', 'schedule_day.read', 'working_hour.create', 'working_hour.update'])]
     private ?\DateTimeInterface $close_time = null;
 
     #[ORM\ManyToOne(inversedBy: 'working_hours')]
