@@ -6,6 +6,7 @@ use App\Repository\ScheduleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: ScheduleRepository::class)]
 class Schedule
@@ -13,8 +14,9 @@ class Schedule
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['schedule.read'])]
     private ?int $id = null;
-
+    
     #[ORM\OneToOne(mappedBy: 'schedule', cascade: ['persist', 'remove'])]
     private ?OrganizationUser $organization_user = null;
 
@@ -22,12 +24,14 @@ class Schedule
      * @var Collection<int, ScheduleDay>
      */
     #[ORM\OneToMany(targetEntity: ScheduleDay::class, mappedBy: 'schedule', orphanRemoval: true)]
+    #[Groups(['schedule.read'])]
     private Collection $schedule_days;
 
     /**
      * @var Collection<int, CustomScheduleDay>
      */
     #[ORM\OneToMany(targetEntity: CustomScheduleDay::class, mappedBy: 'schedule', orphanRemoval: true)]
+    #[Groups(['schedule.read'])]
     private Collection $custom_schedule_days;
 
     /**

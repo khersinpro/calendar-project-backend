@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\WorkingHourRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: WorkingHourRepository::class)]
 class WorkingHour
@@ -12,12 +13,15 @@ class WorkingHour
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['schedule.read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(['schedule.read'])]
     private ?\DateTimeInterface $open_time = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(['schedule.read'])]
     private ?\DateTimeInterface $close_time = null;
 
     #[ORM\ManyToOne(inversedBy: 'working_hours')]

@@ -8,6 +8,7 @@ use App\Repository\ScheduleDayRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: ScheduleDayRepository::class)]
 class ScheduleDay
@@ -15,12 +16,15 @@ class ScheduleDay
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['schedule.read'])]
     private ?int $id = null;
 
     #[ORM\Column(enumType: DayEnum::class)]
+    #[Groups(['schedule.read'])]
     private ?DayEnum $day_of_week = null;
 
     #[ORM\Column(enumType: WorkingDayStatusEnum::class)]
+    #[Groups(['schedule.read'])]
     private ?WorkingDayStatusEnum $status = null;
 
     #[ORM\ManyToOne(inversedBy: 'schedule_days')]
@@ -31,6 +35,7 @@ class ScheduleDay
      * @var Collection<int, WorkingHour>
      */
     #[ORM\OneToMany(targetEntity: WorkingHour::class, mappedBy: 'schedule_day', orphanRemoval: true)]
+    #[Groups(['schedule.read'])]
     private Collection $working_hours;
 
     public function __construct()
