@@ -61,9 +61,7 @@ class OrganizationController extends AbstractController
         #[MapRequestPayload(serializationContext:['groups' => ['organization.create']])] Organization $organization,
         #[CurrentUser] User $user,
         OrganizationUserService $organizationUserService,
-        ScheduleService $scheduleService,
-        ScheduleDayService $scheduleDayService,
-        WorkingHourService $workingHourService
+        ScheduleService $scheduleService
     ): JsonResponse
     {
         $this->em->persist($organization);
@@ -74,22 +72,7 @@ class OrganizationController extends AbstractController
             OrganizationRoleEnum::ADMIN
         );
 
-        $schedule = $scheduleService->createSchedule($organizationUser);
-
-        // For each day of the week, create a schedule day and a working hour
-        foreach (DayEnum::cases() as $day) {
-            $workingStatus = in_array($day, [DayEnum::SUNDAY, DayEnum::SATURDAY]) 
-            ? WorkingDayStatusEnum::NOT_WORKING 
-            : WorkingDayStatusEnum::WORKING;
-
-            $scheduleDay = $scheduleDayService->createScheduleDay($schedule, $day, $workingStatus);
-
-            $workingHourService->createWorkingHour(
-                $scheduleDay, 
-                new \DateTime('08:00:00'), 
-                new \DateTime('17:00:00')
-            );
-        }
+        $scheduleService->initializeCompleteSchedule($organizationUser);
 
         $this->em->flush();
 
