@@ -45,6 +45,7 @@ class Organization
      * @var Collection<int, EventType>
      */
     #[ORM\OneToMany(targetEntity: EventType::class, mappedBy: 'organization', orphanRemoval: true)]
+    #[Groups(['organization.read'])]
     private Collection $event_types;
 
     #[ORM\OneToOne(inversedBy: 'organization', cascade: ['persist', 'remove'])]

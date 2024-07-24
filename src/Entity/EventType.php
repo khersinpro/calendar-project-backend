@@ -2,11 +2,14 @@
 
 namespace App\Entity;
 
+use App\Enum\EventPaymentConditionEnum;
 use App\Repository\EventTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: EventTypeRepository::class)]
 class EventType
@@ -14,27 +17,43 @@ class EventType
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['event_type.read', 'organization.read'])]
     private ?int $id = null;
-
+    
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(
+        min: 2, 
+        max: 255, 
+        minMessage: 'The name must be at least 2 characters', 
+        maxMessage: 'The name cannot be longer than 255 characters'
+    )]
+    #[Groups(['event_type.read', 'event_type.create', 'event_type.update', 'organization.read'])]
     private ?string $name = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
+    #[Assert\Positive]
+    #[Groups(['event_type.read', 'event_type.create', 'event_type.update', 'organization.read'])]
     private ?int $duration = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
-    private ?string $price = null;
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    #[Assert\PositiveOrZero]
+    #[Groups(['event_type.read', 'event_type.create', 'event_type.update', 'organization.read'])]
+    private ?int $price = null;
+
+
+    #[ORM\Column(enumType: EventPaymentConditionEnum::class)]
+    #[Groups(['event_type.read', 'event_type.create', 'event_type.update', 'organization.read'])]
+    private ?EventPaymentConditionEnum $reservation_payment_condition = null;
+
+    #[ORM\Column(type: Types::INTEGER,nullable: true)]
+    #[Assert\PositiveOrZero]
+    #[Groups(['event_type.read', 'event_type.create', 'event_type.update', 'organization.read'])]
+    private ?int $deposit_amount = null;
 
     #[ORM\Column]
-    private ?bool $payment_required = null;
-
-    #[ORM\Column]
-    private ?bool $deposit_required = null;
-
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
-    private ?string $deposit_amout = null;
-
-    #[ORM\Column]
+    #[Groups(['event_type.read', 'event_type.create', 'event_type.update', 'organization.read'])]
     private ?bool $address_required = null;
 
     #[ORM\ManyToOne(inversedBy: 'event_types')]
@@ -55,11 +74,10 @@ class EventType
 
     public function __construct()
     {
-        $this->payment_required = false;
-        $this->deposit_required = false;
         $this->address_required = false;
         $this->organization_users = new ArrayCollection();
         $this->schedule_events = new ArrayCollection();
+        $this->reservation_payment_condition = EventPaymentConditionEnum::FREE;
     }
 
     public function getId(): ?int
@@ -91,50 +109,38 @@ class EventType
         return $this;
     }
 
-    public function getPrice(): ?string
+    public function getPrice(): ?int
     {
         return $this->price;
     }
 
-    public function setPrice(string $price): static
+    public function setPrice(int $price): static
     {
         $this->price = $price;
 
         return $this;
     }
 
-    public function isPaymentRequired(): ?bool
+    public function getReservationPaymentCondition(): ?EventPaymentConditionEnum
     {
-        return $this->payment_required;
+        return $this->reservation_payment_condition;
     }
 
-    public function setPaymentRequired(bool $payment_required): static
+    public function setReservationPaymentCondition(EventPaymentConditionEnum $reservation_payment_condition): static
     {
-        $this->payment_required = $payment_required;
+        $this->reservation_payment_condition = $reservation_payment_condition;
 
         return $this;
     }
 
-    public function isDepositRequired(): ?bool
+    public function getDepositAmount(): ?int
     {
-        return $this->deposit_required;
+        return $this->deposit_amount;
     }
 
-    public function setDepositRequired(bool $deposit_required): static
+    public function setDepositAmount(int $deposit_amount): static
     {
-        $this->deposit_required = $deposit_required;
-
-        return $this;
-    }
-
-    public function getDepositAmout(): ?string
-    {
-        return $this->deposit_amout;
-    }
-
-    public function setDepositAmout(string $deposit_amout): static
-    {
-        $this->deposit_amout = $deposit_amout;
+        $this->deposit_amount = $deposit_amount;
 
         return $this;
     }
