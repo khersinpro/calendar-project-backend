@@ -7,6 +7,7 @@ use App\DTO\ScheduleDay\UpdateScheduleDayDTO;
 use App\Entity\ScheduleDay;
 use App\Enum\WorkingDayStatusEnum;
 use App\Repository\ScheduleDayRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
@@ -17,6 +18,9 @@ use Symfony\Component\Routing\Requirement\Requirement;
 #[Route('/api/schedule-day')]
 class ScheduleDayController extends AbstractController
 {
+    public function __construct(private EntityManagerInterface $em)
+    {}
+
     #[Route(name: 'schedule_day.list', methods: ['GET'])]
     public function list(
         ScheduleDayRepository $scheduleDayRepository,
@@ -41,7 +45,8 @@ class ScheduleDayController extends AbstractController
     ): JsonResponse
     {
         $scheduleDay->setStatus(WorkingDayStatusEnum::from($data->status));
-
+        $this->em->persist($scheduleDay);
+        $this->em->flush();
         return $this->json($scheduleDay, JsonResponse::HTTP_OK, [], ['groups' => 'schedule_day.read']);
     }
 }

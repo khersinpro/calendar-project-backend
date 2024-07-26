@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Symfony\Component\Validator\Constraints as Assert;
 use App\Enum\WorkingDayStatusEnum;
 use App\Repository\CustomScheduleDayRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -18,9 +19,13 @@ class CustomScheduleDay
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Assert\NotBlank]
+    #[Assert\Date(message: 'The date must be a valid date')]
     private ?\DateTimeInterface $date = null;
 
     #[ORM\Column(enumType: WorkingDayStatusEnum::class)]
+    #[Assert\NotBlank]
+    #[Assert\Choice(callback: [WorkingDayStatusEnum::class, 'values'])]
     private ?WorkingDayStatusEnum $status = null;
 
     #[ORM\ManyToOne(inversedBy: 'custom_schedule_days')]

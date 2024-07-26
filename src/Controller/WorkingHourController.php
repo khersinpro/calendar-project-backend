@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\DTO\PaginationDTO;
 use App\DTO\WorkingHour\createWorkingHourDTO;
-use App\DTO\WorkingHour\updateWorkingHourDTO;
 use App\Entity\ScheduleDay;
 use App\Entity\WorkingHour;
 use App\Repository\WorkingHourRepository;
