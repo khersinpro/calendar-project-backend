@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ScheduleDayRepository::class)]
 class ScheduleDay
@@ -21,10 +22,12 @@ class ScheduleDay
 
     #[ORM\Column(enumType: DayEnum::class)]
     #[Groups(['schedule.read', 'schedule_day.read'])]
+    #[Assert\NotBlank]
     private ?DayEnum $day_of_week = null;
 
     #[ORM\Column(enumType: WorkingDayStatusEnum::class)]
     #[Groups(['schedule.read', 'schedule_day.read'])]
+    #[Assert\NotBlank]
     private ?WorkingDayStatusEnum $status = null;
 
     #[ORM\ManyToOne(inversedBy: 'schedule_days')]

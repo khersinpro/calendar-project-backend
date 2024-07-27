@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: CustomScheduleDayRepository::class)]
 class CustomScheduleDay
@@ -16,26 +17,29 @@ class CustomScheduleDay
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['custom_schedule_day.read'])]
     private ?int $id = null;
-
+    
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Assert\NotBlank]
-    #[Assert\Date(message: 'The date must be a valid date')]
+    #[Assert\Type('\DateTimeInterface')]
+    #[Groups(['custom_schedule_day.read'])]
     private ?\DateTimeInterface $date = null;
-
+    
     #[ORM\Column(enumType: WorkingDayStatusEnum::class)]
     #[Assert\NotBlank]
-    #[Assert\Choice(callback: [WorkingDayStatusEnum::class, 'values'])]
+    #[Groups(['custom_schedule_day.read'])]
     private ?WorkingDayStatusEnum $status = null;
-
+    
     #[ORM\ManyToOne(inversedBy: 'custom_schedule_days')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Schedule $schedule = null;
-
+    
     /**
      * @var Collection<int, CustomWorkingHour>
      */
     #[ORM\OneToMany(targetEntity: CustomWorkingHour::class, mappedBy: 'custom_schedule_day', orphanRemoval: true)]
+    #[Groups(['custom_schedule_day.read'])]
     private Collection $custom_working_hours;
 
     public function __construct()

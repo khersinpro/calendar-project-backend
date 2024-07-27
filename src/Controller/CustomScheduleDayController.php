@@ -2,15 +2,15 @@
 
 namespace App\Controller;
 
+use App\DTO\CustomSheduleDay\CreateCustomSheduleDayDTO;
 use App\DTO\PaginationDTO;
 use App\DTO\ScheduleDay\UpdateScheduleDayDTO;
-use App\DTO\WorkingHour\createWorkingHourDTO;
 use App\Entity\CustomScheduleDay;
 use App\Entity\CustomWorkingHour;
 use App\Entity\Schedule;
 use App\Enum\WorkingDayStatusEnum;
 use App\Repository\CustomScheduleDayRepository;
-use App\Repository\CustomWorkingHourRepository;
+use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -41,23 +41,38 @@ class CustomScheduleDayController extends AbstractController
         return $this->json($customScheduleDay, JsonResponse::HTTP_OK, [], ['groups' => 'custom_schedule_day.read']);
     }
 
-    #[Route('/schedule-{id)', name: 'custom_schedule_day.create', methods: ['POST'], requirements: ['id' =>  Requirement::DIGITS])] 
+    #[Route('/{id}', name: 'custom_schedule_day.create', methods: ['POST'], requirements: ['id' =>  Requirement::DIGITS])]
     public function create(
-        #[MapRequestPayload] CustomScheduleDay $customScheduleDay,
+        #[MapRequestPayload] CreateCustomSheduleDayDTO $data,
         Schedule $schedule,
-        CustomScheduleDayRepository $customSheduleDayRepository
+        CustomScheduleDayRepository $customSheduleDayRepository,
+        ValidationService $validationService
     ): JsonResponse
     {
+        $customScheduleDay = new CustomScheduleDay();
+        $customScheduleDay->setDate($data->date);
+        $customScheduleDay->setStatus(WorkingDayStatusEnum::from($data->status));
+        $customScheduleDay->setSchedule($schedule);
+
         $existingCustomScheduleDay = $customSheduleDayRepository->findOneBy([
-            'shedule_id' => $schedule->getId(),
-            'date' => $customScheduleDay->getDate()
+            'schedule' => $schedule->getId(),
+            'date' => $data->date
         ]);
 
         if ($existingCustomScheduleDay) {
             return $this->json('The custom schedule day already exists', JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        $customScheduleDay->setSchedule($schedule);
+        $customWorkingHour =  new CustomWorkingHour();
+        $customWorkingHour->setOpenTime(new \DateTime('08:00:00'));
+        $customWorkingHour->setCloseTime(new \DateTime('17:00:00'));
+        $customWorkingHour->setCustomScheduleDay($customScheduleDay);
+
+        $error = $validationService->validate($customScheduleDay); 
+        if ($error) return $error;
+
+        $this->em->persist($customWorkingHour);
+
         $this->em->persist($customScheduleDay);
         $this->em->flush();
 

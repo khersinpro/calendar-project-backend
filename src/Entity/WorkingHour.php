@@ -19,10 +19,14 @@ class WorkingHour
 
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     #[Groups(['schedule.read', 'working_hour.read', 'schedule_day.read', 'working_hour.create', 'working_hour.update'])]
+    #[Assert\NotBlank]
+    #[Assert\Type('\DateTimeInterface')]
     private ?\DateTimeInterface $open_time = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     #[Groups(['schedule.read', 'working_hour.read', 'schedule_day.read', 'working_hour.create', 'working_hour.update'])]
+    #[Assert\NotBlank]
+    #[Assert\Type('\DateTimeInterface')]
     private ?\DateTimeInterface $close_time = null;
 
     #[ORM\ManyToOne(inversedBy: 'working_hours')]
