@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Entity(repositoryClass: OrganizationRepository::class)]
 class Organization
 {
-    #[Groups(['organization.read', 'organization_user.read'])]
+    #[Groups(['organization.read', 'organization_user.read', 'event_type.read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

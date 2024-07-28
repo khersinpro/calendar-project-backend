@@ -58,6 +58,7 @@ class EventType
 
     #[ORM\ManyToOne(inversedBy: 'event_types')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['event_type.read', 'organization.read'])]
     private ?Organization $organization = null;
 
     /**

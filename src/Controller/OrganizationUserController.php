@@ -4,8 +4,11 @@ namespace App\Controller;
 
 use App\DTO\OrganizationUser\CreateOrganizationUserDTO;
 use App\DTO\OrganizationUser\UpdateOrganizationUserDTO;
+use App\DTO\Type\IdDTO;
+use App\Entity\EventType;
 use App\Entity\OrganizationUser;
 use App\Enum\OrganizationRoleEnum;
+use App\Repository\EventTypeRepository;
 use App\Repository\OrganizationRepository;
 use App\Repository\OrganizationUserRepository;
 use App\Repository\UserRepository;
@@ -98,4 +101,81 @@ class OrganizationUserController extends AbstractController
 
         return $this->json('', JsonResponse::HTTP_NO_CONTENT);
     }
+
+    #[Route('/{id}/add-event-type', name: 'organization_user.add_event_type', methods: ['POST'], requirements: ['id' =>  Requirement::DIGITS])]
+    public function addEventType(
+        OrganizationUser $organizationUser,
+        #[MapRequestPayload] IdDTO $data,
+        EntityManagerInterface $em,
+        EventTypeRepository $eventTypeRepository
+    ): JsonResponse
+    {
+        /** @var EventType|null $eventType */
+        $eventType = $eventTypeRepository->findOneBy(['id' => $data->id]);
+
+        if (!$eventType) {
+            return $this->json('Event type not found', JsonResponse::HTTP_NOT_FOUND);
+        }
+    
+        $sameOrganization = $eventType->getOrganization() !== $organizationUser->getOrganization();
+
+        if ($sameOrganization) {
+            return $this->json(
+                'Cannot assign an event type for user who are not in the same organization', 
+                JsonResponse::HTTP_BAD_REQUEST
+            );
+        }
+
+        $alreadyAssigned = $organizationUser->getEventTypes()->filter(fn($event) => $event === $eventType);
+
+        if ($alreadyAssigned->count() > 0) {
+            return $this->json('The event type is already assigned to the organization user', JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $organizationUser->addEventType($eventType);
+        $em->persist($organizationUser);
+        $em->flush();
+
+        return $this->json($organizationUser, JsonResponse::HTTP_OK, [], ['groups' => 'organization_user.read']);
+    }
+
+    #[Route('/{id}/remove-event-type', name: 'organization_user.remove_event_type', methods: ['DELETE'], requirements: ['id' =>  Requirement::DIGITS])]
+    public function removeEventType(
+        OrganizationUser $organizationUser,
+        #[MapRequestPayload] IdDTO $data,
+        EntityManagerInterface $em,
+        EventTypeRepository $eventTypeRepository,
+    ): JsonResponse
+    {
+        /** @var EventType|null $eventType */
+        $eventType = $eventTypeRepository->findOneBy(['id' => $data->id]);
+
+        if (!$eventType) {
+            return $this->json('Event type not found', JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $sameOrganization = $eventType->getOrganization() !== $organizationUser->getOrganization();
+
+        if ($sameOrganization) {
+            return $this->json(
+                'Cannot remove an event type for user who are not in the same organization', 
+                JsonResponse::HTTP_BAD_REQUEST
+            );
+        }
+
+        $alreadyAssigned = $organizationUser->getEventTypes()->filter(fn($event) => $event === $eventType);
+
+        if ($alreadyAssigned->count() === 0) {
+            return $this->json(
+                'The event type is not assigned to the organization user', 
+                JsonResponse::HTTP_BAD_REQUEST
+            );
+        }
+
+        $organizationUser->removeEventType($eventType);
+        $em->persist($organizationUser);
+        $em->flush();
+
+        return $this->json($organizationUser, JsonResponse::HTTP_OK, [], ['groups' => 'organization_user.read']);
+    }       
 }
