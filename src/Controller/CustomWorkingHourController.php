@@ -7,6 +7,7 @@ use App\DTO\WorkingHour\createWorkingHourDTO;
 use App\Entity\CustomScheduleDay;
 use App\Entity\CustomWorkingHour;
 use App\Repository\CustomWorkingHourRepository;
+use App\Service\EntityService\CustomWorkingHourService;
 use App\Service\Utils\TimeService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -41,6 +42,7 @@ class CustomWorkingHourController extends AbstractController
     public function create(
         #[MapRequestPayload] createWorkingHourDTO $data,
         CustomScheduleDay $customScheduleDay,
+        CustomWorkingHourService $customWorkingHourService
     )
     {
         $currentWorkingHour = $customScheduleDay->getCustomWorkingHours();
@@ -54,15 +56,17 @@ class CustomWorkingHourController extends AbstractController
         );
 
         if (!$timeSlotValid) {
-            return $this->json(['error' => 'The working hours overlap with existing hours.'], JsonResponse::HTTP_BAD_REQUEST);
+            return $this->json([
+                'error' => 'The working hours overlap with existing hours.'
+            ], JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        $workingHour = new CustomWorkingHour();
-        $workingHour->setOpenTime(new \DateTime($data->open_time));
-        $workingHour->setCloseTime(new \DateTime($data->close_time));
-        $workingHour->setCustomScheduleDay($customScheduleDay);
+        $workingHour = $customWorkingHourService->create(
+            new \DateTime($data->open_time), 
+            new \DateTime($data->close_time),
+            $customScheduleDay
+        );
 
-        $this->em->persist($workingHour);
         $this->em->flush();
 
         return $this->json($workingHour, JsonResponse::HTTP_CREATED, [], ['groups' => 'custom_working_hour.read']);
